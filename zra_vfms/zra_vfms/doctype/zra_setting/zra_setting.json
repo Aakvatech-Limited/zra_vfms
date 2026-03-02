@@ -1,0 +1,172 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-03-02 12:29:45.959966",
+ "description": "ZRA VFMS company-level settings with credentials and endpoints",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "base_url",
+  "column_break_bhfd",
+  "zra_start_date",
+  "section_business_info",
+  "business_name",
+  "zrb_number",
+  "column_break_1",
+  "tin_number",
+  "vrn_number",
+  "unit_id",
+  "section_contact",
+  "contact_email",
+  "column_break_2",
+  "contact_phone",
+  "section_credentials",
+  "credentials",
+  "section_endpoints",
+  "endpoints"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "http://102.223.7.131:6060",
+   "description": "VFMS server base URL. Use test URL for sandbox, production URL for live.",
+   "fieldname": "base_url",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Base URL",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_business_info",
+   "fieldtype": "Section Break",
+   "label": "Business Information"
+  },
+  {
+   "fieldname": "business_name",
+   "fieldtype": "Data",
+   "label": "Business Name"
+  },
+  {
+   "description": "ZRA Business Registration Number",
+   "fieldname": "zrb_number",
+   "fieldtype": "Data",
+   "label": "ZRB Number"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tin_number",
+   "fieldtype": "Data",
+   "label": "TIN Number"
+  },
+  {
+   "description": "VAT Registration Number",
+   "fieldname": "vrn_number",
+   "fieldtype": "Data",
+   "label": "VRN Number"
+  },
+  {
+   "description": "Business unit ID from ZRA",
+   "fieldname": "unit_id",
+   "fieldtype": "Data",
+   "label": "Unit ID"
+  },
+  {
+   "fieldname": "section_contact",
+   "fieldtype": "Section Break",
+   "label": "Contact Details"
+  },
+  {
+   "fieldname": "contact_email",
+   "fieldtype": "Data",
+   "label": "Contact Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contact_phone",
+   "fieldtype": "Data",
+   "label": "Contact Phone"
+  },
+  {
+   "fieldname": "section_credentials",
+   "fieldtype": "Section Break",
+   "label": "Tax Type Credentials"
+  },
+  {
+   "fieldname": "credentials",
+   "fieldtype": "Table",
+   "label": "Credentials",
+   "options": "ZRA Credential",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_endpoints",
+   "fieldtype": "Section Break",
+   "label": "API Endpoints"
+  },
+  {
+   "fieldname": "endpoints",
+   "fieldtype": "Table",
+   "label": "Endpoints",
+   "options": "ZRA Endpoint",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_bhfd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "zra_start_date",
+   "fieldtype": "Date",
+   "label": "ZRA Start Date",
+   "reqd": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-02 12:39:25.779596",
+ "modified_by": "Administrator",
+ "module": "ZRA VFMS",
+ "name": "ZRA Setting",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_seen": 1
+}
