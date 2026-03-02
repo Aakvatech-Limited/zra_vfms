@@ -1,0 +1,44 @@
+[
+	{
+		"dt": "Sales Invoice",
+		"fieldname": "tax_authority_section",
+		"fieldtype": "Section Break",
+		"label": "Tax Authority",
+		"insert_after": "amended_from",
+		"collapsible": 1
+	},
+	{
+		"dt": "Sales Invoice",
+		"fieldname": "is_non_taxable",
+		"fieldtype": "Check",
+		"label": "Is Non Taxable",
+		"insert_after": "tax_authority_section",
+		"default": "0",
+		"description": "If checked, this invoice will not be submitted to any tax authority"
+	},
+	{
+		"dt": "Sales Invoice",
+		"fieldname": "tax_status",
+		"fieldtype": "Select",
+		"label": "Tax Status",
+		"insert_after": "is_non_taxable",
+		"options": "\nNot Sent\nPending\nSuccess\nFailed",
+		"default": "Not Sent",
+		"read_only": 1,
+		"in_list_view": 0,
+		"in_standard_filter": 1
+	},
+	{
+		"dt": "Sales Invoice",
+		"fieldname": "tax_authority_col_break",
+		"fieldtype": "Column Break",
+		"insert_after": "tax_status"
+	},
+	{
+		"dt": "Sales Invoice",
+		"fieldname": "send_tax",
+		"fieldtype": "Button",
+		"label": "Send Tax",
+		"insert_after": "tax_authority_col_break"
+	}
+]
