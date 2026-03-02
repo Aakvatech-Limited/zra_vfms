@@ -8,7 +8,7 @@ The ZRA VFMS team takes security issues seriously. We appreciate your efforts to
 
 **Please do NOT report security vulnerabilities through public GitHub issues.**
 
-Instead, please report them via email to: **info@aakvatech.com**
+Instead, please report them via email to: **emgani@aakvatech.com**
 
 Include the following information in your report:
 
