@@ -45,6 +45,12 @@ app_license = "gpl-3.0"
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
+
+doctype_list_js = {
+    "Custom Field": "patches/custom_fields/custom_field.js",
+    "Property Setter": "patches/property_setter/property_setter.js",
+}
+
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
@@ -84,6 +90,13 @@ app_license = "gpl-3.0"
 
 # before_install = "zra_vfms.install.before_install"
 # after_install = "zra_vfms.install.after_install"
+
+# After Migrate
+# -------------
+after_migrate = [
+    "zra_vfms.patches.custom_fields.create_custom_fields.execute",
+    "zra_vfms.patches.property_setter.create_property_setters.execute",
+]
 
 # Uninstallation
 # ------------
