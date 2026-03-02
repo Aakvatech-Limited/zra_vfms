@@ -1,0 +1,176 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-03-03 00:12:11.302004",
+ "description": "Stores ZRA VFMS tax-related response data for Sales Invoices, including receipt details, QR code, and verification URLs.",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "sales_invoice",
+  "company",
+  "column_break_ref",
+  "tax_type",
+  "status",
+  "receipt_section",
+  "receipt_number",
+  "receipt_time",
+  "column_break_receipt",
+  "qr_code_url",
+  "verify_url",
+  "credit_note_section",
+  "receipt_reference",
+  "is_cancellation",
+  "column_break_cn",
+  "is_correction",
+  "error_section",
+  "error_message"
+ ],
+ "fields": [
+  {
+   "fieldname": "sales_invoice",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Sales Invoice",
+   "options": "Sales Invoice",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_ref",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tax_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Tax Type",
+   "options": "\nVAT\nSeaport\nStamp Duty",
+   "reqd": 1
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nSuccess\nFailed",
+   "reqd": 1
+  },
+  {
+   "fieldname": "receipt_section",
+   "fieldtype": "Section Break",
+   "label": "Receipt Details"
+  },
+  {
+   "fieldname": "receipt_number",
+   "fieldtype": "Data",
+   "label": "Receipt Number",
+   "read_only": 1
+  },
+  {
+   "fieldname": "receipt_time",
+   "fieldtype": "Datetime",
+   "label": "Receipt Time",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_receipt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "qr_code_url",
+   "fieldtype": "Data",
+   "label": "QR Code URL",
+   "read_only": 1
+  },
+  {
+   "fieldname": "verify_url",
+   "fieldtype": "Data",
+   "label": "Verify URL",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "credit_note_section",
+   "fieldtype": "Section Break",
+   "label": "Credit Note / Cancellation"
+  },
+  {
+   "fieldname": "receipt_reference",
+   "fieldtype": "Data",
+   "label": "Receipt Reference",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_cancellation",
+   "fieldtype": "Check",
+   "label": "Is Cancellation",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_cn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_correction",
+   "fieldtype": "Check",
+   "label": "Is Correction",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "error_section",
+   "fieldtype": "Section Break",
+   "label": "Error Details"
+  },
+  {
+   "fieldname": "error_message",
+   "fieldtype": "Small Text",
+   "label": "Error Message",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-03 00:12:11.302004",
+ "modified_by": "Administrator",
+ "module": "ZRA VFMS",
+ "name": "ZRA Tax Invoice",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "sales_invoice",
+ "track_changes": 1,
+ "track_seen": 1
+}
