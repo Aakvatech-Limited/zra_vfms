@@ -293,6 +293,8 @@ def process_tax_submission(sales_invoice):
         frappe.log_error(
             title=f"ZRA VFMS: Tax submission failed for {sinv.name}",
             message=result["error"],
+            reference_doctype="Sales Invoice",
+            reference_name=sinv.name,
         )
 
         return {
