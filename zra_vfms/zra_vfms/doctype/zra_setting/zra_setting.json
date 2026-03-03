@@ -11,6 +11,7 @@
   "base_url",
   "column_break_bhfd",
   "zra_start_date",
+  "auto_send_tax",
   "section_business_info",
   "business_name",
   "zrb_number",
@@ -137,6 +138,13 @@
    "label": "ZRA Start Date",
    "reqd": 1,
    "search_index": 1
+  },
+  {
+   "default": "0",
+   "description": "If enabled, invoices will be automatically sent to ZRA upon submission. Otherwise, use the Send Tax button to send manually.",
+   "fieldname": "auto_send_tax",
+   "fieldtype": "Check",
+   "label": "Auto Send Tax on Submit"
   }
  ],
  "grid_page_length": 50,
