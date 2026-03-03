@@ -71,16 +71,20 @@ def send_tax(sales_invoice):
     setting = get_zra_setting(sinv.company)
     if not setting:
         frappe.throw(
-            _("No ZRA Setting found for company {0}. "
-              "Please create one in ZRA Setting.").format(sinv.company)
+            _(f"No ZRA Setting found for company {sinv.company}. Please create one in ZRA Setting.")
+        )
+
+    if setting.zra_start_date and sinv.posting_date < setting.zra_start_date:
+        frappe.throw(
+            _(f"Cannot send tax for invoices before ZRA start date <b>{setting.zra_start_date}</b>.")
         )
 
     # Check if already sent successfully
     existing = get_tax_invoice(sinv.name)
     if existing and existing.status == "Success":
         frappe.throw(
-            _("Tax has already been sent successfully for this invoice. "
-              "Receipt Number: {0}").format(existing.receipt_number)
+            _(f"Tax has already been sent successfully for this invoice. "
+              f"Receipt Number: {existing.receipt_number}")
         )
 
     # Process synchronously for manual send
@@ -277,9 +281,7 @@ def process_tax_submission(sales_invoice):
         receipt_number = (result["response"] or {}).get("Receipt_number", "")
         return {
             "success": True,
-            "message": _("Tax sent successfully. Receipt: {0}").format(
-                receipt_number
-            ),
+            "message": _(f"Tax sent successfully. Receipt: {receipt_number}"),
             "receipt_number": receipt_number,
         }
     else:
@@ -304,7 +306,7 @@ def process_tax_submission(sales_invoice):
 
         return {
             "success": False,
-            "message": _("Tax submission failed: {0}").format(result["error"]),
+            "message": _(f"Tax submission failed: {result['error']}"),
         }
 
 
