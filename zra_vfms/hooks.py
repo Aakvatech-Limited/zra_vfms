@@ -46,6 +46,10 @@ app_license = "gpl-3.0"
 # doctype_js = {"doctype" : "public/js/doctype.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 
+doctype_js = {
+    "Sales Invoice": "public/js/sales_invoice.js",
+}
+
 doctype_list_js = {
     "Custom Field": "patches/custom_fields/custom_field.js",
     "Property Setter": "patches/property_setter/property_setter.js",
@@ -150,13 +154,11 @@ after_migrate = [
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+    "Sales Invoice": {
+        "on_submit": "zra_vfms.api.sales_invoice.on_submit",
+    },
+}
 
 # Scheduled Tasks
 # ---------------
