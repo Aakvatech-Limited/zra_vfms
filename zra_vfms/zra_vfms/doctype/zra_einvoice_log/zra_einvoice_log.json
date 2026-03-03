@@ -45,7 +45,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Request Type",
-   "options": "\nTax Invoice Registration\nTax Invoice Cancellation\nTax Invoice Correction\nTax Invoice Verification\nSeaport Tax Invoice Registration\nSeaport Tax Invoice Cancellation\nSeaport Tax Invoice Correction\nStamp Duty Invoice Registration\nStamp Duty Invoice Cancellation\nStamp Duty Invoice Correction",
+   "options": "\nNormal Sales\nB2B Sales\nInstitution Sales\nCheck Relief\nSave Relief Sales\nGet Non-Tax Items\nSeaport Sales\nSeaport Foreign Charge\nError Correction\nError Correction Report",
    "reqd": 1
   },
   {
