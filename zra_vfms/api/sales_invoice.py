@@ -32,6 +32,9 @@ def on_submit(doc, method):
     if not setting:
         return
 
+    if not setting.auto_send_tax:
+        return
+
     if setting.zra_start_date and doc.posting_date < setting.zra_start_date:
         return
 
@@ -198,7 +201,6 @@ def _process_bulk_tax_invoices():
                 reference_doctype="Sales Invoice",
                 reference_name=inv.name,
             )
-
 
 
 def process_tax_submission(sales_invoice):
