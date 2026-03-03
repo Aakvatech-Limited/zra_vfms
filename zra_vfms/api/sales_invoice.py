@@ -38,19 +38,8 @@ def on_submit(doc, method):
     if setting.zra_start_date and doc.posting_date < setting.zra_start_date:
         return
 
-    # Set status to Pending immediately
-    frappe.db.set_value(
-        "Sales Invoice", doc.name, "tax_status", "Pending",
-        update_modified=False,
-    )
-
-    # Enqueue the actual sending to avoid blocking the submit transaction
-    frappe.enqueue(
-        "zra_vfms.api.sales_invoice.process_tax_submission",
-        queue="short",
-        sales_invoice=doc.name,
-        enqueue_after_commit=True,
-    )
+    # Process synchronously so the submit waits for the ZRA response
+    process_tax_submission(doc.name)
 
 
 @frappe.whitelist()
@@ -223,7 +212,7 @@ def process_tax_submission(sales_invoice):
     setting = get_zra_setting(sinv.company)
 
     if not setting:
-        _update_tax_status(sinv.name, "Failed")
+        _update_tax_status(sinv.name, "Pending")
         return {"success": False, "message": _("No ZRA Setting found")}
 
     # Determine tax type and endpoint
