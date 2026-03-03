@@ -87,6 +87,90 @@ def send_tax(sales_invoice):
     return process_tax_submission(sinv.name)
 
 
+def send_all_tax_invoices():
+    """Send tax to ZRA for all pending/failed Sales Invoices.
+
+    Scheduled task (every 15 minutes) that runs as a single background
+    job and processes invoices sequentially in one pass:
+    1. Finds all submitted, taxable Sales Invoices with tax_status
+       in ('Not Sent', 'Failed') or NULL
+    2. Filters by companies that have an active ZRA Setting
+    3. Processes each invoice directly (no per-invoice enqueue)
+
+    Invoices are processed oldest-first to maintain chronological order.
+    Each invoice is committed independently so a failure in one does not
+    roll back others.
+    """
+    # Get companies with active ZRA Settings
+    zra_companies = frappe.get_all(
+        "ZRA Setting",
+        filters={"docstatus": 0},
+        pluck="company",
+    )
+
+    if not zra_companies:
+        return
+
+    # Find all submitted invoices that need tax sending
+    invoices = frappe.get_all(
+        "Sales Invoice",
+        filters={
+            "docstatus": 1,
+            "company": ["in", zra_companies],
+            "is_non_taxable": 0,
+            "tax_status": ["in", ["Not Sent", "Failed", "", None]],
+        },
+        fields=["name", "company", "posting_date"],
+        order_by="posting_date asc, creation asc",
+    )
+
+    if not invoices:
+        return
+
+    # Filter invoices by zra_start_date per company
+    settings_cache = {}
+    eligible = []
+
+    for inv in invoices:
+        if inv.company not in settings_cache:
+            settings_cache[inv.company] = get_zra_setting(inv.company)
+
+        setting = settings_cache[inv.company]
+        if not setting:
+            continue
+
+        if setting.zra_start_date and inv.posting_date < setting.zra_start_date:
+            continue
+
+        eligible.append(inv)
+
+    if not eligible:
+        return
+
+    success_count = 0
+    fail_count = 0
+
+    for inv in eligible:
+        try:
+            result = process_tax_submission(inv.name)
+            if result and result.get("success"):
+                success_count += 1
+            else:
+                fail_count += 1
+        except Exception as e:
+            fail_count += 1
+
+            traceback = frappe.get_traceback()
+            msg = f"ZRA VFMS: Bulk tax failed for {inv.name} <br><br>\n{str(e)} <br><br>\n{traceback}"
+            frappe.log_error(
+                title=f"ZRA VFMS: Bulk tax failed for {inv.name}",
+                message=msg,
+                reference_doctype="Sales Invoice",
+                reference_name=inv.name,
+            )
+
+
+
 def process_tax_submission(sales_invoice):
     """Process the actual tax submission to VFMS.
 

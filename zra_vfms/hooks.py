@@ -163,23 +163,13 @@ doc_events = {
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"zra_vfms.tasks.all"
-# 	],
-# 	"daily": [
-# 		"zra_vfms.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"zra_vfms.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"zra_vfms.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"zra_vfms.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+    "cron": {
+        "*/15 * * * *": [
+            "zra_vfms.api.sales_invoice.send_all_tax_invoices",
+        ],
+    },
+}
 
 # Testing
 # -------
