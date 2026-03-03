@@ -100,7 +100,33 @@ def send_all_tax_invoices():
     Invoices are processed oldest-first to maintain chronological order.
     Each invoice is committed independently so a failure in one does not
     roll back others.
+
+    Uses a cache lock to prevent overlapping runs when a job exceeds
+    the 15-minute scheduler interval.
     """
+    lock_key = "zra_vfms_bulk_send_tax_running"
+
+    # Check if another run is already in progress
+    if frappe.cache.get_value(lock_key):
+        frappe.log_error(
+            title="ZRA VFMS Bulk Send: Skipped",
+            message="Previous run still in progress",
+        )
+        return
+
+    try:
+        # Acquire lock with 30-minute expiry as safety net
+        frappe.cache.set_value(lock_key, True, expires_in_sec=1800)
+
+        _process_bulk_tax_invoices()
+
+    finally:
+        # Always release the lock when done
+        frappe.cache.delete_value(lock_key)
+
+
+def _process_bulk_tax_invoices():
+    """Internal: Process all eligible invoices for bulk tax submission."""
     # Get companies with active ZRA Settings
     zra_companies = frappe.get_all(
         "ZRA Setting",
