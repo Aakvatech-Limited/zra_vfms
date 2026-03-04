@@ -36,9 +36,46 @@
 	},
 	{
 		"dt": "Sales Invoice",
+		"fieldname": "relief_number",
+		"fieldtype": "Data",
+		"label": "Relief Number",
+		"insert_after": "tax_authority_col_break",
+		"description": "Special relief number issued by ZRB. Fill this to use the Relief Sales endpoint."
+	},
+	{
+		"dt": "Sales Invoice",
+		"fieldname": "relief_verified",
+		"fieldtype": "Check",
+		"label": "Relief Verified",
+		"insert_after": "relief_number",
+		"default": "0",
+		"read_only": 1,
+		"hidden": 1,
+		"description": "Set automatically when relief number is verified against ZRA"
+	},
+	{
+		"dt": "Sales Invoice",
+		"fieldname": "relief_id",
+		"fieldtype": "Data",
+		"label": "Relief ID",
+		"insert_after": "relief_verified",
+		"read_only": 1,
+		"hidden": 1,
+		"description": "Relief ID returned by ZRA after verification; used in Save Relief Sales request"
+	},
+	{
+		"dt": "Sales Invoice",
+		"fieldname": "verify_relief_number",
+		"fieldtype": "Button",
+		"label": "Verify Relief Number",
+		"insert_after": "relief_id",
+		"depends_on": "eval:doc.relief_number && !doc.relief_verified"
+	},
+	{
+		"dt": "Sales Invoice",
 		"fieldname": "send_tax",
 		"fieldtype": "Button",
 		"label": "Send Tax",
-		"insert_after": "tax_authority_col_break"
+		"insert_after": "verify_relief_number"
 	}
 ]
