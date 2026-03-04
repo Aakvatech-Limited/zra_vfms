@@ -1,11 +1,8 @@
 # Copyright (c) 2026, Aakvatech Limited and contributors
 # For license information, please see license.txt
 
-import json
-
 import frappe
 from frappe import _
-from frappe.utils import strip_html
 
 from zra_vfms.utils.utils import get_zra_setting, send_request
 from zra_vfms.zra_vfms.doctype.zra_einvoice_log.zra_einvoice_log import create_log, update_log
@@ -26,6 +23,12 @@ def on_submit(doc, method):
     - posting_date is before the ZRA start date
     """
     if doc.get("is_non_taxable"):
+        return
+
+    # Return invoices (credit notes) are not auto-sent;
+    # Error Correction requires a replacement receipt and must be
+    # triggered manually via the Send Tax button.
+    if doc.get("is_return"):
         return
 
     setting = get_zra_setting(doc.company)
@@ -140,6 +143,7 @@ def _process_bulk_tax_invoices():
             "docstatus": 1,
             "company": ["in", zra_companies],
             "is_non_taxable": 0,
+            "is_return": 0,
             "tax_status": ["in", ["Not Sent", "Failed", "", None]],
         },
         fields=["name", "company", "posting_date"],
@@ -269,7 +273,7 @@ def process_tax_submission(sales_invoice):
         )
         _update_tax_status(sinv.name, "Success")
 
-        receipt_number = (result["response"] or {}).get("Receipt_number", "")
+        receipt_number = (result["response"] or {}).get("receiptNumber", "")
         return {
             "success": True,
             "message": _(f"Tax sent successfully. Receipt: {receipt_number}"),
@@ -306,10 +310,15 @@ def process_tax_submission(sales_invoice):
 def _determine_tax_type_and_endpoint(sinv):
     """Determine the tax type and VFMS endpoint for a Sales Invoice.
 
-    Logic:
-    - Return invoices (credit notes) → Error Correction
-    - Customer has TIN (tax_id) → B2B Sales
-    - Default → Normal Sales
+    Routing logic per VFMS API Guide v1.5:
+    - Return invoices (credit notes) → Error Correction (Section 3.9)
+    - Customer has ZRB number (tax_id) → B2B Sales (Section 3.2)
+    - Default walk-in customer → Normal Sales (Section 3.1)
+
+    Note: Institution Sales (Section 3.3) requires additional routing
+    logic (e.g., customer group = Government) — not yet implemented.
+    Seaport endpoints (Sections 3.7, 3.8) require Seaport tax type
+    credentials and separate payload builders.
 
     Returns:
         Tuple of (tax_type, endpoint_name).
@@ -333,66 +342,69 @@ def _build_request_payload(sinv, setting, endpoint_name):
     if endpoint_name == "Error Correction":
         return _build_error_correction_payload(sinv, setting)
 
-    return _build_sales_payload(sinv, setting)
+    return _build_sales_payload(sinv, endpoint_name)
 
 
-def _build_sales_payload(sinv, setting):
-    """Build a sales request payload (Normal, B2B, Institution).
+def _build_sales_payload(sinv, endpoint_name):
+    """Build a sales request payload for Normal, B2B, or Institution Sales.
 
-    Maps ERPNext Sales Invoice fields to the VFMS API format
-    per API Guide v1.5.
+    Per VFMS API Guide v1.5 Sections 3.1, 3.2, 3.3:
+
+    Normal Sales request:
+        phoneNumber, referenceNumber, salesCurrency, salesCustomer,
+        salesItems[]
+
+    B2B / Institution Sales request:
+        phoneNumber, referenceNumber, salesCurrency, salesItems[],
+        zrbnumber  (replaces salesCustomer)
+
+    salesItems[] per item:
+        itemId  — 0 for taxable; VFMS non-tax ID for exempt items
+        itemName, price (tax-inclusive selling price), quantity, discount
+
+    IMPORTANT: VFMS calculates taxes from the submitted prices.
+    We do NOT send tax codes, rates, or amounts in the request.
+    The ``price`` field must be the tax-inclusive selling price per
+    unit, because VFMS back-calculates tax-exclusive and tax amounts.
     """
-    buyer_id_type = "6"  # NIL (walk-in customer)
-    buyer_id = ""
-
-    if sinv.tax_id:
-        buyer_id_type = "1"  # TIN
-        buyer_id = sinv.tax_id
-
-    items = []
-    for item in sinv.items:
-        tax_rate = _get_item_tax_rate(item, sinv)
-        tax_amount = _get_item_tax_amount(item, sinv)
-
-        items.append({
-            "Item_code": item.item_code or "",
-            "Item_desc": (item.item_name or item.description or "")[:200],
-            "Qty": float(item.qty),
-            "Unit_price": float(item.rate),
-            "Discount": float(item.discount_amount or 0),
-            "Tax_code": _get_tax_code(tax_rate),
-            "Tax_percent": float(tax_rate),
-            "Tax_amount": float(tax_amount),
-            "Nontaxable_amount": (
-                float(item.net_amount) if tax_rate == 0 else 0.0
-            ),
-            "Amount": float(item.amount),
-        })
-
-    return {
-        "Buyer_id_type": buyer_id_type,
-        "Buyer_id": buyer_id,
-        "Buyer_name": sinv.customer_name or sinv.customer or "",
-        "Buyer_phone": _get_customer_phone(sinv),
-        "Buyer_email": _get_customer_email(sinv),
-        "Buyer_address": _get_customer_address(sinv),
-        "Total_tax_excl": float(sinv.net_total),
-        "Total_tax_incl": float(sinv.grand_total),
-        "Total_discount": float(sinv.discount_amount or 0),
-        "Tax_group": "A",
-        "Items": items,
+    payload = {
+        "phoneNumber": _get_customer_phone(sinv),
+        "referenceNumber": sinv.name,
+        "salesCurrency": sinv.currency,
+        "salesItems": _build_sales_items(sinv),
     }
+
+    if endpoint_name in ("B2B Sales", "Institution Sales"):
+        # B2B / Institution: identify buyer by ZRB number
+        payload["zrbnumber"] = sinv.tax_id or ""
+    else:
+        # Normal Sales: identify buyer by name
+        payload["salesCustomer"] = sinv.customer_name or sinv.customer or ""
+
+    return payload
 
 
 def _build_error_correction_payload(sinv, setting):
-    """Build an error correction payload for credit notes / return invoices.
+    """Build an Error Correction request payload.
 
-    References the original invoice receipt via Receipt_reference.
-    Amounts are sent as positive values (absolute).
+    Per VFMS API Guide v1.5 Section 3.9:
+        b_unit_name, email, new_receipt_number, old_receipt_number,
+        phone_no, reasons, unitId, zrb_number
+
+    Error Correction voids a wrong receipt and links it to a
+    corrected replacement receipt.  Both receipt numbers must exist
+    before this request can be sent.
+
+    For credit notes (return invoices) in ERPNext:
+    - old_receipt_number = receipt of the original invoice
+    - new_receipt_number = receipt of the amended/replacement invoice
     """
-    receipt_reference = ""
+    old_receipt_number = ""
+    new_receipt_number = ""
+
     if sinv.return_against:
-        receipt_reference = (
+        # Get the receipt of the original (wrong) invoice
+        old_receipt_number = (
             frappe.db.get_value(
                 "ZRA Tax Invoice",
                 {"sales_invoice": sinv.return_against, "status": "Success"},
@@ -401,125 +413,110 @@ def _build_error_correction_payload(sinv, setting):
             or ""
         )
 
-    items = []
-    for item in sinv.items:
-        tax_rate = _get_item_tax_rate(item, sinv)
-        tax_amount = _get_item_tax_amount(item, sinv)
+        # Find the amended/replacement invoice and its receipt
+        amended_name = frappe.db.get_value(
+            "Sales Invoice",
+            {"amended_from": sinv.return_against, "docstatus": 1},
+            "name",
+        )
+        if amended_name:
+            new_receipt_number = (
+                frappe.db.get_value(
+                    "ZRA Tax Invoice",
+                    {"sales_invoice": amended_name, "status": "Success"},
+                    "receipt_number",
+                )
+                or ""
+            )
 
-        items.append({
-            "Item_code": item.item_code or "",
-            "Item_desc": (item.item_name or item.description or "")[:200],
-            "Qty": abs(float(item.qty)),
-            "Unit_price": float(item.rate),
-            "Discount": abs(float(item.discount_amount or 0)),
-            "Tax_code": _get_tax_code(tax_rate),
-            "Tax_percent": float(tax_rate),
-            "Tax_amount": abs(float(tax_amount)),
-            "Nontaxable_amount": (
-                abs(float(item.net_amount)) if tax_rate == 0 else 0.0
-            ),
-            "Amount": abs(float(item.amount)),
-        })
+    if not old_receipt_number:
+        frappe.throw(
+            _("Cannot send Error Correction: original invoice has no "
+              "successful ZRA receipt.  Send the original invoice first.")
+        )
+
+    if not new_receipt_number:
+        frappe.throw(
+            _("Cannot send Error Correction: no replacement invoice with "
+              "a successful ZRA receipt was found.  Submit and send the "
+              "amended invoice to ZRA first.")
+        )
 
     return {
-        "Receipt_reference": receipt_reference,
-        "Reason": sinv.remarks or "Error Correction",
-        "Buyer_id_type": "1" if sinv.tax_id else "6",
-        "Buyer_id": sinv.tax_id or "",
-        "Buyer_name": sinv.customer_name or sinv.customer or "",
-        "Total_tax_excl": abs(float(sinv.net_total)),
-        "Total_tax_incl": abs(float(sinv.grand_total)),
-        "Total_discount": abs(float(sinv.discount_amount or 0)),
-        "Items": items,
+        "b_unit_name": setting.business_name or "",
+        "email": setting.contact_email or "",
+        "new_receipt_number": new_receipt_number,
+        "old_receipt_number": old_receipt_number,
+        "phone_no": setting.contact_phone or "",
+        "reasons": sinv.remarks or "Error Correction",
+        "unitId": int(setting.unit_id) if setting.unit_id else 0,
+        "zrb_number": setting.zrb_number or "",
     }
 
 
-def _get_item_tax_amount(item, sinv):
-    """Calculate the tax amount for a single item.
+def _build_sales_items(sinv):
+    """Build the salesItems array per VFMS API Guide v1.5.
 
-    Tries item_wise_tax_detail JSON first, falls back to
-    proportional calculation from total taxes.
+    Each item has:
+        itemId    — 0 for taxable items (VFMS applies registered tax rate);
+                    for non-taxable (exempt) items, use the item ID from the
+                    VFMS Non-Tax Items list (getNonTaxItems endpoint).
+        itemName  — item/service description (max 200 chars)
+        price     — tax-inclusive unit selling price
+        quantity  — number of units
+        discount  — total line discount amount (tax-inclusive)
+
+    Note: Non-taxable item ID mapping is not yet implemented;
+    all items default to itemId=0 (taxable).
     """
-    if sinv.taxes:
-        for tax_row in sinv.taxes:
-            if tax_row.item_wise_tax_detail:
-                try:
-                    tax_detail = json.loads(tax_row.item_wise_tax_detail)
-                    item_key = item.item_code or item.item_name
-                    if item_key in tax_detail:
-                        _rate, amount = tax_detail[item_key]
-                        return amount
-                except (json.JSONDecodeError, ValueError, TypeError):
-                    pass
-
-        # Fallback: proportional
-        if sinv.net_total:
-            return (
-                (item.net_amount / sinv.net_total)
-                * sinv.total_taxes_and_charges
-            )
-
-    return 0.0
+    items = []
+    for item in sinv.items:
+        items.append({
+            "itemId": 0,
+            "itemName": (item.item_name or item.description or "")[:200],
+            "price": _get_item_selling_price(item, sinv),
+            "quantity": float(item.qty),
+            "discount": 0.0,
+        })
+    return items
 
 
-def _get_item_tax_rate(item, sinv):
-    """Get the tax rate for a single item.
+def _get_item_selling_price(item, sinv):
+    """Return the tax-inclusive selling price per unit.
 
-    Tries item_wise_tax_detail JSON first, falls back to the
-    first tax row's rate.
+    VFMS always treats the submitted ``price`` as tax-inclusive and
+    back-calculates the tax-exclusive amount and tax:
+
+        tax_exclusive = price × qty / (1 + rate)
+        tax_amount    = price × qty − tax_exclusive
+
+    So we must ensure the price includes tax.
+
+    - If tax is **included in rate** (``included_in_print_rate``),
+      ``item.rate`` already contains tax → use directly.
+    - If tax is **on net total** (not included), ``item.rate`` is the
+      net price → gross it up using grand_total / net_total.
     """
-    if sinv.taxes:
-        for tax_row in sinv.taxes:
-            if tax_row.item_wise_tax_detail:
-                try:
-                    tax_detail = json.loads(tax_row.item_wise_tax_detail)
-                    item_key = item.item_code or item.item_name
-                    if item_key in tax_detail:
-                        rate, _amount = tax_detail[item_key]
-                        return rate
-                except (json.JSONDecodeError, ValueError, TypeError):
-                    pass
+    if not sinv.taxes:
+        return round(float(item.rate), 2)
 
-        # Fallback: first tax row
-        if sinv.taxes[0].rate:
-            return sinv.taxes[0].rate
+    # When any tax row has included_in_print_rate, ERPNext stores the
+    # tax-inclusive rate in item.rate.
+    if any(tax.included_in_print_rate for tax in sinv.taxes):
+        return round(float(item.rate), 2)
 
-    return 0.0
+    # Tax not included in rate — gross up proportionally.
+    # grand_total / net_total gives the effective (1 + tax_rate) factor.
+    if sinv.net_total:
+        gross_factor = float(sinv.grand_total) / float(sinv.net_total)
+        return round(float(item.rate) * gross_factor, 2)
 
-
-def _get_tax_code(tax_rate):
-    """Map tax rate to VFMS tax code.
-
-    A = Standard rate (18%)
-    B = Special rate
-    C = Zero rated (0%)
-    D = Exempt
-    E = Special relief
-    """
-    if tax_rate == 0:
-        return "C"
-    elif tax_rate == 18:
-        return "A"
-    else:
-        return "B"
+    return round(float(item.rate), 2)
 
 
 def _get_customer_phone(sinv):
-    """Get customer phone from the invoice contact fields."""
+    """Get customer mobile/phone from the invoice contact fields."""
     return sinv.get("contact_mobile") or sinv.get("contact_phone") or ""
-
-
-def _get_customer_email(sinv):
-    """Get customer email from the invoice contact fields."""
-    return sinv.get("contact_email") or ""
-
-
-def _get_customer_address(sinv):
-    """Get customer address, stripping any HTML markup."""
-    address = sinv.get("address_display") or ""
-    if address:
-        return strip_html(address)[:200]
-    return ""
 
 
 def _update_tax_status(sales_invoice, status):
