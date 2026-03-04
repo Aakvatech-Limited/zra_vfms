@@ -82,28 +82,19 @@ def update_tax_invoice(
         tax_inv.error_message = error_message
 
     if response_data:
-        tax_inv.receipt_number = (
-            response_data.get("Receipt_number")
-            or response_data.get("receipt_number")
-            or ""
-        )
+        # Sales endpoints return receiptNumber; Error Correction does not
+        tax_inv.receipt_number = response_data.get("receiptNumber") or ""
 
-        receipt_time = response_data.get("Receipt_time") or response_data.get(
-            "receipt_time"
-        )
+        # issueDate format: "2022-08-12T15:14:16.197+03:00"
+        receipt_time = response_data.get("issueDate")
         if receipt_time:
             tax_inv.receipt_time = receipt_time
 
-        tax_inv.qr_code_url = (
-            response_data.get("QRCodeURL")
-            or response_data.get("qrcode_url")
-            or ""
-        )
-        tax_inv.verify_url = (
-            response_data.get("VerifyURL")
-            or response_data.get("verify_url")
-            or ""
-        )
+        # VFMS does not return QR/verify URLs in the response;
+        # per API Guide v1.5 note: QR code should be generated
+        # client-side using the receipt number.
+        tax_inv.qr_code_url = ""
+        tax_inv.verify_url = ""
 
     tax_inv.save(ignore_permissions=True)
     frappe.db.commit()
