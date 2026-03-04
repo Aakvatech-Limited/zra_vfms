@@ -97,9 +97,10 @@ def send_request(setting, endpoint_name, payload, tax_type="VAT"):
     # Get decrypted token
     token_id = credential.get_password("token_id")
 
-    # Build headers per VFMS API Guide v1.5
+    # Build headers per VFMS API Guide v1.5 (Section 1.4)
     headers = {
         "Content-Type": "application/json",
+        "vfms-request-type": request_type,
         "vfms-intergration-id": credential.integration_id,
         "vfms-token-id": token_id,
     }
