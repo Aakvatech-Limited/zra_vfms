@@ -7,82 +7,61 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "vfms_item_id",
+  "item_id",
   "item_name",
   "column_break_info",
   "unit_measure",
-  "is_taxable",
-  "section_sync",
   "last_synced",
-  "column_break_sync",
   "company"
  ],
  "fields": [
   {
-   "description": "Item ID from VFMS getNonTaxItems endpoint",
-   "fieldname": "vfms_item_id",
-   "fieldtype": "Int",
-   "in_list_view": 1,
-   "label": "VFMS Item ID",
-   "reqd": 1,
-   "unique": 1
-  },
-  {
-   "description": "Item name from VFMS",
    "fieldname": "item_name",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Item Name",
-   "reqd": 1
+   "reqd": 1,
+   "search_index": 1
   },
   {
    "fieldname": "column_break_info",
    "fieldtype": "Column Break"
   },
   {
-   "description": "Unit of measure from VFMS",
    "fieldname": "unit_measure",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Unit of Measure"
+   "label": "Unit of Measure",
+   "search_index": 1
   },
   {
-   "default": "0",
-   "description": "Should always be false for items from this endpoint",
-   "fieldname": "is_taxable",
-   "fieldtype": "Check",
-   "label": "Is Taxable",
-   "read_only": 1
-  },
-  {
-   "fieldname": "section_sync",
-   "fieldtype": "Section Break",
-   "label": "Sync Details"
-  },
-  {
-   "description": "When this record was last fetched from VFMS",
    "fieldname": "last_synced",
    "fieldtype": "Datetime",
    "label": "Last Synced",
-   "read_only": 1
+   "read_only": 1,
+   "search_index": 1
   },
   {
-   "fieldname": "column_break_sync",
-   "fieldtype": "Column Break"
-  },
-  {
-   "description": "Company whose ZRA Setting was used to fetch",
    "fieldname": "company",
    "fieldtype": "Link",
    "label": "Company",
    "options": "Company",
-   "reqd": 1
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "item_id",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Item ID",
+   "reqd": 1,
+   "search_index": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-04 11:42:25.642302",
+ "modified": "2026-03-04 15:30:28.066478",
  "modified_by": "Administrator",
  "module": "ZRA VFMS",
  "name": "ZRA Non Tax Item",
