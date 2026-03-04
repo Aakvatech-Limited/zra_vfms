@@ -380,7 +380,6 @@ def _build_sales_payload(sinv, setting):
         "Total_tax_incl": float(sinv.grand_total),
         "Total_discount": float(sinv.discount_amount or 0),
         "Tax_group": "A",
-        "Payment_type": _get_payment_type(sinv),
         "Items": items,
     }
 
@@ -503,31 +502,6 @@ def _get_tax_code(tax_rate):
         return "A"
     else:
         return "B"
-
-
-def _get_payment_type(sinv):
-    """Determine VFMS payment type from Sales Invoice.
-
-    Maps ERPNext mode of payment to VFMS values:
-    CASH, CREDIT, CHEQUE, BANK_TRANSFER, MOBILE_MONEY.
-    """
-    if sinv.is_pos and sinv.payments:
-        for payment in sinv.payments:
-            mode = (payment.mode_of_payment or "").upper()
-            if "CASH" in mode:
-                return "CASH"
-            elif "BANK" in mode or "TRANSFER" in mode:
-                return "BANK_TRANSFER"
-            elif "CHEQUE" in mode or "CHECK" in mode:
-                return "CHEQUE"
-            elif "MOBILE" in mode or "MPESA" in mode or "TIGO" in mode:
-                return "MOBILE_MONEY"
-
-    # Non-POS invoices are credit by default
-    if not sinv.is_pos:
-        return "CREDIT"
-
-    return "CASH"
 
 
 def _get_customer_phone(sinv):
