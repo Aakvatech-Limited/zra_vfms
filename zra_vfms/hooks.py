@@ -169,6 +169,9 @@ scheduler_events = {
             "zra_vfms.api.sales_invoice.send_all_tax_invoices",
         ],
     },
+    "weekly": [
+        "zra_vfms.api.non_tax_items.fetch_non_tax_items",
+    ],
 }
 
 # Testing
