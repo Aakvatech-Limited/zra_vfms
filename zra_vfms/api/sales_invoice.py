@@ -312,13 +312,10 @@ def _determine_tax_type_and_endpoint(sinv):
 
     Routing logic per VFMS API Guide v1.5:
     - Return invoices (credit notes) → Error Correction (Section 3.9)
-    - Customer has ZRB number (tax_id) → B2B Sales (Section 3.2)
+    - relief_number is set and verified → Check Relief / Save Relief Sales
+    - tax_id present + customer_group == 'Government' → Institution Sales
+    - tax_id present + customer_group != 'Government' → B2B Sales
     - Default walk-in customer → Normal Sales (Section 3.1)
-
-    Note: Institution Sales (Section 3.3) requires additional routing
-    logic (e.g., customer group = Government) — not yet implemented.
-    Seaport endpoints (Sections 3.7, 3.8) require Seaport tax type
-    credentials and separate payload builders.
 
     Returns:
         Tuple of (tax_type, endpoint_name).
@@ -328,7 +325,22 @@ def _determine_tax_type_and_endpoint(sinv):
     if sinv.is_return:
         return tax_type, "Error Correction"
 
+    # Relief Sales: if relief_number is filled and verified
+    if sinv.get("relief_number"):
+        if not sinv.get("relief_id"):
+            frappe.throw(
+                _("Relief number must be verified before sending tax. "
+                  "Click 'Verify Relief Number' first.")
+            )
+        return tax_type, "Save Relief Sales"
+
     if sinv.tax_id:
+        # Fetch customer group to distinguish B2B vs Institution
+        customer_group = frappe.db.get_value(
+            "Customer", sinv.customer, "customer_group"
+        )
+        if customer_group == "Government":
+            return tax_type, "Institution Sales"
         return tax_type, "B2B Sales"
 
     return tax_type, "Normal Sales"
@@ -341,6 +353,9 @@ def _build_request_payload(sinv, setting, endpoint_name):
     """
     if endpoint_name == "Error Correction":
         return _build_error_correction_payload(sinv, setting)
+
+    if endpoint_name == "Save Relief Sales":
+        return _build_save_relief_payload(sinv)
 
     return _build_sales_payload(sinv, endpoint_name)
 
@@ -452,6 +467,92 @@ def _build_error_correction_payload(sinv, setting):
         "unitId": int(setting.unit_id) if setting.unit_id else 0,
         "zrb_number": setting.zrb_number or "",
     }
+
+
+def _build_save_relief_payload(sinv):
+    """Build a Save Relief Sales request payload.
+
+    Per VFMS API Guide v1.5 Section 3.5:
+    The request only requires the reliefId (long) obtained from the
+    Check Relief endpoint (Section 3.4).  VFMS returns the full
+    receipt with salesItems, taxAmount, etc. in the response.
+    """
+    relief_id = sinv.get("relief_id")
+    if not relief_id:
+        frappe.throw(
+            _("Relief ID is missing. Verify the relief number first.")
+        )
+
+    return {
+        "reliefId": int(relief_id),
+    }
+
+
+@frappe.whitelist()
+def verify_relief_number(sales_invoice):
+    """Verify a special relief number against ZRA (Check Relief endpoint).
+
+    Per VFMS API Guide v1.5 Section 3.4:
+    Request:  {"reliefnumber": "22081303"}
+    Response: {reliefId, reliefNumber, customer, isValid, items[], ...}
+
+    On success, stores the reliefId on the Sales Invoice for later use
+    by Save Relief Sales.
+    """
+    sinv = frappe.get_doc("Sales Invoice", sales_invoice)
+
+    relief_number = sinv.get("relief_number")
+    if not relief_number:
+        frappe.throw(_("Please enter a relief number first."))
+
+    setting = get_zra_setting(sinv.company)
+    if not setting:
+        frappe.throw(
+            _(f"No ZRA Setting found for company {sinv.company}.")
+        )
+
+    payload = {"reliefnumber": relief_number}
+
+    result = send_request(setting, "Check Relief", payload, "VAT")
+
+    if result["success"]:
+        response = result["response"] or {}
+
+        if not response.get("isValid"):
+            frappe.throw(
+                _("Relief number <b>{0}</b> is not valid or has expired.")
+                .format(relief_number)
+            )
+
+        relief_id = response.get("reliefId")
+        if not relief_id:
+            frappe.throw(
+                _("ZRA returned no Relief ID for this relief number.")
+            )
+
+        # Store relief_id (its presence proves verification)
+        frappe.db.set_value(
+            "Sales Invoice", sinv.name,
+            "relief_id", str(relief_id),
+            update_modified=False,
+        )
+        frappe.db.commit()
+
+        return {
+            "success": True,
+            "message": _(
+                "Relief number verified successfully. "
+                "Customer: {0}, Amount Relieved: {1}"
+            ).format(
+                response.get("customer", ""),
+                response.get("amountRevield", 0),
+            ),
+            "relief_id": relief_id,
+        }
+    else:
+        frappe.throw(
+            _("Relief verification failed: {0}").format(result["error"])
+        )
 
 
 def _build_sales_items(sinv):
