@@ -1,6 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
+ "autoname": "field:company",
  "creation": "2026-03-02 12:29:45.959966",
  "description": "ZRA VFMS company-level settings with credentials and endpoints",
  "doctype": "DocType",
@@ -45,7 +46,8 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Base URL",
-   "reqd": 1
+   "reqd": 1,
+   "search_index": 1
   },
   {
    "fieldname": "section_business_info",
@@ -144,13 +146,14 @@
    "description": "If enabled, invoices will be automatically sent to ZRA upon submission. Otherwise, use the Send Tax button to send manually.",
    "fieldname": "auto_send_tax",
    "fieldtype": "Check",
-   "label": "Auto Send Tax on Submit"
+   "label": "Auto Send Tax on Submit",
+   "search_index": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-02 12:39:25.779596",
+ "modified": "2026-03-03 16:07:44.173756",
  "modified_by": "Administrator",
  "module": "ZRA VFMS",
  "name": "ZRA Setting",
@@ -176,5 +179,5 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
- "track_seen": 1
+ "track_changes": 1
 }
