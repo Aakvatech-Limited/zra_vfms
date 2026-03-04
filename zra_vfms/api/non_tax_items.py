@@ -83,11 +83,10 @@ def _fetch_and_sync_items(setting):
 
         item_name = item_data.get("name") or ""
         unit_measure = item_data.get("unitMeasure") or ""
-        is_taxable = 1 if item_data.get("isTaxable") else 0
 
         existing = frappe.db.get_value(
             "ZRA Non Tax Item",
-            {"vfms_item_id": vfms_id},
+            {"item_id": vfms_id},
             "name",
         )
 
@@ -97,7 +96,6 @@ def _fetch_and_sync_items(setting):
                 {
                     "item_name": item_name,
                     "unit_measure": unit_measure,
-                    "is_taxable": is_taxable,
                     "last_synced": synced_at,
                 },
                 update_modified=True,
@@ -105,10 +103,9 @@ def _fetch_and_sync_items(setting):
             updated_count += 1
         else:
             doc = frappe.new_doc("ZRA Non Tax Item")
-            doc.vfms_item_id = vfms_id
+            doc.item_id = vfms_id
             doc.item_name = item_name
             doc.unit_measure = unit_measure
-            doc.is_taxable = is_taxable
             doc.last_synced = synced_at
             doc.company = setting.company
             doc.insert(ignore_permissions=True)
