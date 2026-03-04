@@ -44,21 +44,10 @@
 	},
 	{
 		"dt": "Sales Invoice",
-		"fieldname": "relief_verified",
-		"fieldtype": "Check",
-		"label": "Relief Verified",
-		"insert_after": "relief_number",
-		"default": "0",
-		"read_only": 1,
-		"hidden": 1,
-		"description": "Set automatically when relief number is verified against ZRA"
-	},
-	{
-		"dt": "Sales Invoice",
 		"fieldname": "relief_id",
 		"fieldtype": "Data",
 		"label": "Relief ID",
-		"insert_after": "relief_verified",
+		"insert_after": "relief_number",
 		"read_only": 1,
 		"hidden": 1,
 		"description": "Relief ID returned by ZRA after verification; used in Save Relief Sales request"
@@ -69,7 +58,7 @@
 		"fieldtype": "Button",
 		"label": "Verify Relief Number",
 		"insert_after": "relief_id",
-		"depends_on": "eval:doc.relief_number && !doc.relief_verified"
+		"depends_on": "eval:doc.relief_number && !doc.relief_id"
 	},
 	{
 		"dt": "Sales Invoice",
