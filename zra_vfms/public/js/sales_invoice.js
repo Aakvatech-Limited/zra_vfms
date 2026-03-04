@@ -4,6 +4,40 @@
 frappe.ui.form.on("Sales Invoice", {
   refresh(frm) {
     zra_vfms_update_tax_status_indicator(frm);
+    zra_vfms_toggle_relief_fields(frm);
+  },
+
+  relief_number(frm) {
+    // Reset verification when relief number changes
+    if (frm.doc.relief_id) {
+      frm.set_value("relief_id", "");
+    }
+    zra_vfms_toggle_relief_fields(frm);
+  },
+
+  verify_relief_number(frm) {
+    if (!frm.doc.relief_number) {
+      frappe.msgprint(__("Please enter a relief number first."));
+      return;
+    }
+
+    frappe.call({
+      method: "zra_vfms.api.sales_invoice.verify_relief_number",
+      args: {
+        sales_invoice: frm.doc.name,
+      },
+      freeze: true,
+      freeze_message: __("Verifying relief number with ZRA..."),
+      callback: function (r) {
+        if (r.message && r.message.success) {
+          frappe.show_alert({
+            message: __(r.message.message),
+            indicator: "green",
+          });
+          frm.reload_doc();
+        }
+      },
+    });
   },
 
   send_tax(frm) {
@@ -47,9 +81,24 @@ frappe.ui.form.on("Sales Invoice", {
 });
 
 /**
- * Update the visual indicator for tax_status field.
- * Changes the field description colour based on current status.
+ * Show/hide relief-related fields based on current state.
  */
+function zra_vfms_toggle_relief_fields(frm) {
+  const has_relief = !!frm.doc.relief_number;
+  const is_verified = !!frm.doc.relief_id;
+
+  // Show verify button only when relief_number is filled and not yet verified
+  frm.toggle_display("verify_relief_number", has_relief && !is_verified);
+
+  // Show a verified indicator
+  if (has_relief && is_verified && frm.fields_dict.relief_number) {
+    frm.fields_dict.relief_number.set_description(
+      '<span style="color: green;">&#10003; Verified</span>'
+    );
+  } else if (frm.fields_dict.relief_number) {
+    frm.fields_dict.relief_number.set_description("");
+  }
+}
 function zra_vfms_update_tax_status_indicator(frm) {
   if (!frm.doc.tax_status) return;
 
