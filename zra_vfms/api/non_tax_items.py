@@ -40,10 +40,11 @@ def fetch_non_tax_items():
         try:
             _fetch_and_sync_items(setting)
             processed_urls.add(row.base_url)
-        except Exception:
+        except Exception as e:
+            msg = f"{row.company}: {str(e)} <br><br>Traceback:</b><br>{frappe.get_traceback()}"
             frappe.log_error(
-                title=f"ZRA VFMS: Failed to fetch non-tax items for {row.company}",
-                message=frappe.get_traceback(),
+                title=f"ZRA VFMS: Failed to fetch non-tax items",
+                message=msg,
                 reference_doctype="ZRA Setting",
                 reference_name=row.name,
             )
