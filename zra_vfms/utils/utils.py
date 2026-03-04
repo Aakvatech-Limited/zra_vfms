@@ -115,19 +115,41 @@ def send_request(setting, endpoint_name, payload, tax_type="VAT"):
         response_data = response.json()
 
         # VFMS API returns HTTP 200 for both success and error.
-        # Check response for success indicators.
-        if response.status_code == 200 and not response_data.get("error"):
-            return {
-                "success": True,
-                "response": response_data,
-                "error": None,
-            }
-        else:
+        # Some endpoints (e.g., getNonTaxItems) return a JSON array
+        # directly — a list response on HTTP 200 is always success.
+        if response.status_code == 200:
+            if isinstance(response_data, list):
+                return {
+                    "success": True,
+                    "response": response_data,
+                    "error": None,
+                }
+
+            if not response_data.get("error"):
+                return {
+                    "success": True,
+                    "response": response_data,
+                    "error": None,
+                }
+
             error_msg = (
                 response_data.get("error")
                 or response_data.get("message")
-                or f"HTTP {response.status_code}"
+                or "Unknown error"
             )
+            return {
+                "success": False,
+                "response": response_data,
+                "error": error_msg,
+            }
+        else:
+            error_msg = f"HTTP {response.status_code}"
+            if isinstance(response_data, dict):
+                error_msg = (
+                    response_data.get("error")
+                    or response_data.get("message")
+                    or error_msg
+                )
             return {
                 "success": False,
                 "response": response_data,
