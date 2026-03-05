@@ -1,6 +1,8 @@
 # Copyright (c) 2026, Aakvatech Limited and contributors
 # For license information, please see license.txt
 
+from datetime import datetime
+
 import frappe
 from frappe.model.document import Document
 
@@ -88,7 +90,7 @@ def update_tax_invoice(
         # issueDate format: "2022-08-12T15:14:16.197+03:00"
         receipt_time = response_data.get("issueDate")
         if receipt_time:
-            tax_inv.receipt_time = receipt_time
+            tax_inv.receipt_time = _parse_issue_date(receipt_time)
 
         # VFMS does not return QR/verify URLs in the response;
         # per API Guide v1.5 note: QR code should be generated
@@ -119,3 +121,16 @@ def get_tax_invoice(sales_invoice, tax_type=None):
     if name:
         return frappe.get_doc("ZRA Tax Invoice", name)
     return None
+
+
+def _parse_issue_date(value):
+    """Convert VFMS issueDate (ISO 8601) to MariaDB-compatible datetime string.
+
+    VFMS returns dates like ``2026-03-05T19:02:58.103+03:00``.
+    MariaDB ``datetime(6)`` expects ``YYYY-MM-DD HH:MM:SS[.ffffff]``.
+    """
+    try:
+        dt = datetime.fromisoformat(value)
+        return dt.strftime("%Y-%m-%d %H:%M:%S.%f")
+    except (ValueError, TypeError):
+        return value
