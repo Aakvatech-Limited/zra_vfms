@@ -18,6 +18,21 @@
   "column_break_receipt",
   "qr_code_url",
   "verify_url",
+  "response_section",
+  "znumber",
+  "type",
+  "booking_number",
+  "reg_number",
+  "column_break_vfms_1",
+  "urn",
+  "response_number",
+  "business_name",
+  "tax_amounts_section",
+  "receipt_amount",
+  "column_break_vfms_2",
+  "tax_exclusive",
+  "column_break_vfms_3",
+  "tax_amount",
   "credit_note_section",
   "receipt_reference",
   "is_cancellation",
@@ -54,7 +69,9 @@
    "in_list_view": 1,
    "label": "Tax Type",
    "options": "\nVAT\nSeaport\nStamp Duty",
-   "reqd": 1
+   "read_only": 1,
+   "reqd": 1,
+   "search_index": 1
   },
   {
    "default": "Pending",
@@ -63,7 +80,9 @@
    "in_list_view": 1,
    "label": "Status",
    "options": "Pending\nSuccess\nFailed",
-   "reqd": 1
+   "read_only": 1,
+   "reqd": 1,
+   "search_index": 1
   },
   {
    "fieldname": "receipt_section",
@@ -96,6 +115,78 @@
    "fieldname": "verify_url",
    "fieldtype": "Data",
    "label": "Verify URL",
+   "read_only": 1
+  },
+  {
+   "fieldname": "znumber",
+   "fieldtype": "Data",
+   "label": "Z Number",
+   "read_only": 1
+  },
+  {
+   "fieldname": "type",
+   "fieldtype": "Data",
+   "label": "Type",
+   "read_only": 1
+  },
+  {
+   "fieldname": "booking_number",
+   "fieldtype": "Data",
+   "label": "Booking Number",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reg_number",
+   "fieldtype": "Data",
+   "label": "Reg Number",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_vfms_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "urn",
+   "fieldtype": "Data",
+   "label": "URN",
+   "read_only": 1
+  },
+  {
+   "fieldname": "response_number",
+   "fieldtype": "Data",
+   "label": "Response Number",
+   "read_only": 1
+  },
+  {
+   "fieldname": "business_name",
+   "fieldtype": "Data",
+   "label": "Business Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "receipt_amount",
+   "fieldtype": "Currency",
+   "label": "Receipt Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_vfms_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tax_exclusive",
+   "fieldtype": "Currency",
+   "label": "Tax Exclusive",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_vfms_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tax_amount",
+   "fieldtype": "Currency",
+   "label": "Tax Amount",
    "read_only": 1
   },
   {
@@ -139,12 +230,22 @@
    "fieldtype": "Small Text",
    "label": "Error Message",
    "read_only": 1
+  },
+  {
+   "fieldname": "response_section",
+   "fieldtype": "Section Break",
+   "label": "Response Details"
+  },
+  {
+   "fieldname": "tax_amounts_section",
+   "fieldtype": "Section Break",
+   "label": "Tax Amounts"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-03 00:12:11.302004",
+ "modified": "2026-03-05 21:08:39.739567",
  "modified_by": "Administrator",
  "module": "ZRA VFMS",
  "name": "ZRA Tax Invoice",

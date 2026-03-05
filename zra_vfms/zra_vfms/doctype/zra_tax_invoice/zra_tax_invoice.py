@@ -92,6 +92,18 @@ def update_tax_invoice(
         if receipt_time:
             tax_inv.receipt_time = _parse_issue_date(receipt_time)
 
+        # VFMS response fields
+        tax_inv.znumber = response_data.get("znumber") or ""
+        tax_inv.type = response_data.get("type") or ""
+        tax_inv.booking_number = response_data.get("bookingNumber") or ""
+        tax_inv.reg_number = response_data.get("regNumber") or ""
+        tax_inv.urn = response_data.get("urn") or ""
+        tax_inv.response_number = response_data.get("responseNumber") or ""
+        tax_inv.business_name = response_data.get("businessName") or ""
+        tax_inv.receipt_amount = response_data.get("receitpAmount") or 0
+        tax_inv.tax_exclusive = response_data.get("taxExclussive") or 0
+        tax_inv.tax_amount = response_data.get("taxAmount") or 0
+
         # VFMS does not return QR/verify URLs in the response;
         # per API Guide v1.5 note: QR code should be generated
         # client-side using the receipt number.
