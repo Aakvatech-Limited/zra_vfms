@@ -3,6 +3,7 @@
 
 import frappe
 from frappe import _
+from frappe.utils import getdate
 
 from zra_vfms.utils.utils import get_zra_setting, send_request
 from zra_vfms.zra_vfms.doctype.zra_einvoice_log.zra_einvoice_log import create_log, update_log
@@ -38,7 +39,7 @@ def on_submit(doc, method):
     if not setting.auto_send_tax:
         return
 
-    if setting.zra_start_date and doc.posting_date < setting.zra_start_date:
+    if setting.zra_start_date and getdate(doc.posting_date) < getdate(setting.zra_start_date):
         return
 
     # Process synchronously so the submit waits for the ZRA response
@@ -69,7 +70,7 @@ def send_tax(sales_invoice):
             _(f"No ZRA Setting found for company {sinv.company}. Please create one in ZRA Setting.")
         )
 
-    if setting.zra_start_date and sinv.posting_date < setting.zra_start_date:
+    if setting.zra_start_date and getdate(sinv.posting_date) < getdate(setting.zra_start_date):
         frappe.throw(
             _(f"Cannot send tax for invoices before ZRA start date <b>{setting.zra_start_date}</b>.")
         )
@@ -165,7 +166,7 @@ def _process_bulk_tax_invoices():
         if not setting:
             continue
 
-        if setting.zra_start_date and inv.posting_date < setting.zra_start_date:
+        if setting.zra_start_date and getdate(inv.posting_date) < getdate(setting.zra_start_date):
             continue
 
         eligible.append(inv)
