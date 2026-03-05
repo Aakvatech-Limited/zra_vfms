@@ -1,9 +1,9 @@
 [
 	{
 		"dt": "Sales Invoice",
-		"fieldname": "tax_authority_section",
+		"fieldname": "zra_section",
 		"fieldtype": "Section Break",
-		"label": "Tax Authority",
+		"label": "ZRA",
 		"insert_after": "amended_from",
 		"collapsible": 1
 	},
@@ -12,9 +12,9 @@
 		"fieldname": "is_non_taxable",
 		"fieldtype": "Check",
 		"label": "Is Non Taxable",
-		"insert_after": "tax_authority_section",
+		"insert_after": "zra_section",
 		"default": "0",
-		"description": "If checked, this invoice will not be submitted to any tax authority"
+		"description": "If checked, this invoice will not be sent to ZRA."
 	},
 	{
 		"dt": "Sales Invoice",
@@ -24,13 +24,14 @@
 		"insert_after": "is_non_taxable",
 		"options": "\nNot Sent\nPending\nSuccess\nFailed",
 		"default": "Not Sent",
+		"no_copy": 1,
 		"read_only": 1,
 		"in_list_view": 0,
 		"in_standard_filter": 1
 	},
 	{
 		"dt": "Sales Invoice",
-		"fieldname": "tax_authority_col_break",
+		"fieldname": "zra_col_break",
 		"fieldtype": "Column Break",
 		"insert_after": "tax_status"
 	},
@@ -39,7 +40,7 @@
 		"fieldname": "relief_number",
 		"fieldtype": "Data",
 		"label": "Relief Number",
-		"insert_after": "tax_authority_col_break",
+		"insert_after": "zra_col_break",
 		"description": "Special relief number issued by ZRB. Fill this to use the Relief Sales endpoint."
 	},
 	{
@@ -48,9 +49,7 @@
 		"fieldtype": "Data",
 		"label": "Relief ID",
 		"insert_after": "relief_number",
-		"read_only": 1,
-		"hidden": 1,
-		"description": "Relief ID returned by ZRA after verification; used in Save Relief Sales request"
+		"read_only": 1
 	},
 	{
 		"dt": "Sales Invoice",
@@ -65,6 +64,7 @@
 		"fieldname": "send_tax",
 		"fieldtype": "Button",
 		"label": "Send Tax",
-		"insert_after": "verify_relief_number"
+		"insert_after": "verify_relief_number",
+		"depends_on": "eval:doc.tax_status != 'Success' && !doc.is_non_taxable && doc.docstatus == 1"
 	}
 ]
