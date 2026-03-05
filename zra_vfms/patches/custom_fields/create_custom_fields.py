@@ -56,13 +56,13 @@ def create_fields_from_json(custom_fields_obj):
     # If that fails, fall back to creating fields one-by-one per doctype
     # so that a single bad field does not block the rest.
     try:
-        create_custom_fields(doctype_custom_fields_dict, update=False)
+        create_custom_fields(doctype_custom_fields_dict, update=True)
     except Exception:
         for doctype, fields in doctype_custom_fields_dict.items():
             for df in fields:
                 fieldname = df.get("fieldname", df.get("label", "unknown"))
                 try:
-                    create_custom_fields({doctype: [df]}, update=False)
+                    create_custom_fields({doctype: [df]}, update=True)
                 except Exception as e:
                     print(
                         f"WARNING [zra_vfms]: Failed to create custom field "
