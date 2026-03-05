@@ -254,7 +254,7 @@ def process_tax_submission(sales_invoice):
         request_type=endpoint_name,
         request_payload=payload,
         zra_tax_invoice=tax_inv.name,
-        status="Pending",
+        status="Failed",
     )
 
     # Send the API request
@@ -300,11 +300,10 @@ def process_tax_submission(sales_invoice):
             reference_doctype="Sales Invoice",
             reference_name=sinv.name,
         )
+        frappe.db.commit()
 
-        return {
-            "success": False,
-            "message": _(f"Tax submission failed: {result['error']}"),
-        }
+        msg = _(f"Tax submission failed: <br><br>Message: <b>{result.get('error')}</b>")
+        frappe.throw(msg)
 
 
 def _determine_tax_type_and_endpoint(sinv):
@@ -341,6 +340,7 @@ def _determine_tax_type_and_endpoint(sinv):
         )
         if customer_group == "Government":
             return tax_type, "Institution Sales"
+
         return tax_type, "B2B Sales"
 
     return tax_type, "Normal Sales"
@@ -617,8 +617,14 @@ def _get_item_selling_price(item, sinv):
 
 def _get_customer_phone(sinv):
     """Get customer mobile/phone from the invoice contact fields."""
-    return sinv.get("contact_mobile") or sinv.get("contact_phone") or ""
+    phone_number =  sinv.get("contact_mobile") or sinv.get("contact_phone") or ""
+    if not phone_number:
+        phone_number = frappe.db.get_value("Customer", sinv.customer, "mobile_no") or ""
 
+    if not phone_number:
+        frappe.throw(_(f"No contact phone number found for customer: {sinv.customer}, please enter a phone number in the invoice or customer record."))
+
+    return phone_number
 
 def _update_tax_status(sales_invoice, status):
     """Update the tax_status custom field on Sales Invoice."""
