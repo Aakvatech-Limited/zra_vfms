@@ -125,18 +125,14 @@ def send_request(setting, endpoint_name, payload, tax_type="VAT"):
                     "error": None,
                 }
 
-            if not response_data.get("error"):
+            error_msg = response_data.get("error") or response_data.get("message") or response_data.get("statusMessage")
+            if not error_msg:
                 return {
                     "success": True,
                     "response": response_data,
                     "error": None,
                 }
 
-            error_msg = (
-                response_data.get("error")
-                or response_data.get("message")
-                or "Unknown error"
-            )
             return {
                 "success": False,
                 "response": response_data,
@@ -148,8 +144,10 @@ def send_request(setting, endpoint_name, payload, tax_type="VAT"):
                 error_msg = (
                     response_data.get("error")
                     or response_data.get("message")
+                    or response_data.get("statusMessage")
                     or error_msg
                 )
+
             return {
                 "success": False,
                 "response": response_data,
