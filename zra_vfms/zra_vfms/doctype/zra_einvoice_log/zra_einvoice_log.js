@@ -1,7 +1,7 @@
 // Copyright (c) 2026, Administrator and contributors
 // For license information, please see license.txt
 
-frappe.ui.form.on("ZRA eInvoice Log", {
+frappe.ui.form.on("ZRA Einvoice Log", {
   refresh(frm) {
     // Called when form is refreshed
     if (frm.doc.__islocal) {

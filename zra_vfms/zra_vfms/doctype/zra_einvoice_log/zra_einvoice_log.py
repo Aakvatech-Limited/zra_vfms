@@ -7,7 +7,7 @@ import frappe
 from frappe.model.document import Document
 
 
-class ZRAeInvoiceLog(Document):
+class ZRAEinvoiceLog(Document):
 	pass
 
 
@@ -18,7 +18,7 @@ def create_log(
     zra_tax_invoice=None,
     status="Pending",
 ):
-    """Create a new ZRA eInvoice Log entry.
+    """Create a new ZRA Einvoice Log entry.
 
     This is a reusable utility that can be called from any module
     that needs to log VFMS API interactions.
@@ -31,9 +31,9 @@ def create_log(
         status: Initial status (default: "Pending").
 
     Returns:
-        ZRA eInvoice Log document.
+        ZRA Einvoice Log document.
     """
-    log = frappe.new_doc("ZRA eInvoice Log")
+    log = frappe.new_doc("ZRA Einvoice Log")
     log.sales_invoice = sales_invoice
     log.request_type = request_type
     log.status = status
@@ -48,18 +48,18 @@ def create_log(
 
 
 def update_log(log_name, response_payload=None, status=None, error_message=None):
-    """Update an existing ZRA eInvoice Log entry.
+    """Update an existing ZRA Einvoice Log entry.
 
     Args:
-        log_name: Name of the ZRA eInvoice Log.
+        log_name: Name of the ZRA Einvoice Log.
         response_payload: Dict of the API response body.
         status: New status ("Success" or "Failed").
         error_message: Error message on failure.
 
     Returns:
-        Updated ZRA eInvoice Log document.
+        Updated ZRA Einvoice Log document.
     """
-    log = frappe.get_doc("ZRA eInvoice Log", log_name)
+    log = frappe.get_doc("ZRA Einvoice Log", log_name)
 
     if response_payload:
         log.response_payload = json.dumps(response_payload, indent=2)
@@ -74,14 +74,14 @@ def update_log(log_name, response_payload=None, status=None, error_message=None)
 
 
 def increment_retry(log_name):
-    """Increment the retry count on an eInvoice Log entry.
+    """Increment the retry count on an Einvoice Log entry.
 
     Args:
-        log_name: Name of the ZRA eInvoice Log.
+        log_name: Name of the ZRA Einvoice Log.
     """
-    current = frappe.db.get_value("ZRA eInvoice Log", log_name, "retry_count") or 0
+    current = frappe.db.get_value("ZRA Einvoice Log", log_name, "retry_count") or 0
     frappe.db.set_value(
-        "ZRA eInvoice Log", log_name, "retry_count", current + 1,
+        "ZRA Einvoice Log", log_name, "retry_count", current + 1,
         update_modified=False,
     )
     frappe.db.commit()
