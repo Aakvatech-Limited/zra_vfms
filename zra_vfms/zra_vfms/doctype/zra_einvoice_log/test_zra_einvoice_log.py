@@ -5,17 +5,17 @@ import frappe
 from frappe.tests import IntegrationTestCase, UnitTestCase
 
 
-class UnitTestZRAeInvoiceLog(UnitTestCase):
+class UnitTestZRAEinvoiceLog(UnitTestCase):
 	"""
-	Unit tests for ZRA eInvoice Log.
+	Unit tests for ZRA Einvoice Log.
 	Use this class for testing individual functions and methods.
 	"""
 
 
 
-class IntegrationTestZRAeInvoiceLog(IntegrationTestCase):
+class IntegrationTestZRAEinvoiceLog(IntegrationTestCase):
 	"""
-	Integration tests for ZRA eInvoice Log.
+	Integration tests for ZRA Einvoice Log.
 	Use this class for testing interactions with the database.
 	"""
 
@@ -26,16 +26,16 @@ class IntegrationTestZRAeInvoiceLog(IntegrationTestCase):
 		"""Clean up test data after each test."""
 
 	def test_zra_einvoice_log_creation(self):
-		"""Test creating a new ZRA eInvoice Log."""
+		"""Test creating a new ZRA Einvoice Log."""
 		# Create test document
 		doc = frappe.get_doc({
-			"doctype": "ZRA eInvoice Log",
+			"doctype": "ZRA Einvoice Log",
 			# Add required fields here
 		})
 		doc.insert()
 
 		# Assertions
-		self.assertEqual(doc.doctype, "ZRA eInvoice Log")
+		self.assertEqual(doc.doctype, "ZRA Einvoice Log")
 		self.assertIsNotNone(doc.name)
 
 		# Clean up

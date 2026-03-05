@@ -111,7 +111,7 @@
  "modified": "2026-03-03 00:12:41.742870",
  "modified_by": "Administrator",
  "module": "ZRA VFMS",
- "name": "ZRA eInvoice Log",
+ "name": "ZRA Einvoice Log",
  "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
