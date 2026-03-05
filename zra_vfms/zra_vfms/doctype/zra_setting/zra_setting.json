@@ -13,17 +13,6 @@
   "column_break_bhfd",
   "zra_start_date",
   "auto_send_tax",
-  "section_business_info",
-  "business_name",
-  "zrb_number",
-  "column_break_1",
-  "tin_number",
-  "vrn_number",
-  "unit_id",
-  "section_contact",
-  "contact_email",
-  "column_break_2",
-  "contact_phone",
   "section_credentials",
   "credentials",
   "section_endpoints",
@@ -48,63 +37,6 @@
    "label": "Base URL",
    "reqd": 1,
    "search_index": 1
-  },
-  {
-   "fieldname": "section_business_info",
-   "fieldtype": "Section Break",
-   "label": "Business Information"
-  },
-  {
-   "fieldname": "business_name",
-   "fieldtype": "Data",
-   "label": "Business Name"
-  },
-  {
-   "description": "ZRA Business Registration Number",
-   "fieldname": "zrb_number",
-   "fieldtype": "Data",
-   "label": "ZRB Number"
-  },
-  {
-   "fieldname": "column_break_1",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "tin_number",
-   "fieldtype": "Data",
-   "label": "TIN Number"
-  },
-  {
-   "description": "VAT Registration Number",
-   "fieldname": "vrn_number",
-   "fieldtype": "Data",
-   "label": "VRN Number"
-  },
-  {
-   "description": "Business unit ID from ZRA",
-   "fieldname": "unit_id",
-   "fieldtype": "Data",
-   "label": "Unit ID"
-  },
-  {
-   "fieldname": "section_contact",
-   "fieldtype": "Section Break",
-   "label": "Contact Details"
-  },
-  {
-   "fieldname": "contact_email",
-   "fieldtype": "Data",
-   "label": "Contact Email",
-   "options": "Email"
-  },
-  {
-   "fieldname": "column_break_2",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "contact_phone",
-   "fieldtype": "Data",
-   "label": "Contact Phone"
   },
   {
    "fieldname": "section_credentials",
@@ -153,7 +85,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-03 16:07:44.173756",
+ "modified": "2026-03-05 21:28:37.208231",
  "modified_by": "Administrator",
  "module": "ZRA VFMS",
  "name": "ZRA Setting",
