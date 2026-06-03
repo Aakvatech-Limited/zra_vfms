@@ -1,123 +1,82 @@
 exclude: "node_modules|.git"
-default_stages: [pre-commit, pre-push, manual]
+default_stages: [pre-commit, manual]
 fail_fast: false
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v5.0.0
     hooks:
       - id: trailing-whitespace
         files: "zra_vfms.*"
-        exclude: ".*json$|.*txt$|.*csv|.*md"
+        exclude: ".*json$|.*txt$|.*csv|.*md|.*svg"
       - id: check-yaml
       - id: no-commit-to-branch
-        args: ["--branch", "develop", "--branch", "master", "--branch", "production"]
+        args: ["--branch", "version-15", "--branch", "version-15-hotfix", "--branch", "version-16", "--branch", "version-16-hotfix"]
       - id: check-merge-conflict
       - id: check-ast
+      - id: check-json
+      - id: check-toml
+      - id: debug-statements
 
   - repo: https://github.com/psf/black
     rev: 24.1.1
     hooks:
       - id: black
-        # Configure black to handle line length
-        args: ["--line-length", "120"]
-        files: "^zra_vfms/.*\\.py$"
-        # Make black report issues but not block the commit
-        stages: [manual]
+        args: ["--line-length", "110"]
 
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.13.2
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.1
     hooks:
-      - id: isort
-        args: ["--profile", "black", "--line-length", "120"]
-        files: "^zra_vfms/.*\\.py$"
+      - id: ruff
+        name: "Run ruff import sorter"
+        args: ["--select=I", "--fix"]
+
+      - id: ruff
+        name: "Run ruff linter"
 
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v2.7.1
     hooks:
       - id: prettier
         types_or: [javascript, vue, scss]
-        files: "^(zra_vfms|frontend)/.*\\.(js|vue|scss)$"
-        args: [
-          "--write",
-          "--print-width=79",
-          "--tab-width=2",
-          "--use-tabs=false",
-          "--semi=true",
-          "--single-quote=false",
-          "--trailing-comma=es5",
-          "--bracket-spacing=true",
-          "--arrow-parens=always",
-          "--end-of-line=lf",
-        ]
         # Ignore any files that might contain jinja / bundles
         exclude: |
-          (?x)^(
-              zra_vfms/public/dist/.*|
-              cypress/.*|
-              .*node_modules.*|
-              .*boilerplate.*
-          )$
+            (?x)^(
+                zra_vfms/public/dist/.*|
+                .*node_modules.*|
+                .*boilerplate.*|
+                zra_vfms/templates/includes/.*|
+                zra_vfms/public/js/lib/.*
+            )$
 
   - repo: https://github.com/pre-commit/mirrors-eslint
     rev: v8.44.0
     hooks:
       - id: eslint
         types_or: [javascript]
-        files: "^(zra_vfms|frontend)/.*\\.js$"
-        args: ["--quiet", "--fix", "--config", ".eslintrc.js"]
-        additional_dependencies:
-          - eslint@8.44.0
-          - "@babel/eslint-parser@7.22.9"
-          - "@babel/core@7.22.9"
-          - "@babel/preset-env@7.22.9"
-          - "@babel/plugin-proposal-class-properties@7.18.6"
+        args: ['--quiet']
         # Ignore any files that might contain jinja / bundles
         exclude: |
-          (?x)^(
-              zra_vfms/public/dist/.*|
-              cypress/.*|
-              .*node_modules.*|
-              .*boilerplate.*
-          )$
+            (?x)^(
+                zra_vfms/public/dist/.*|
+                cypress/.*|
+                .*node_modules.*|
+                .*boilerplate.*|
+                zra_vfms/templates/includes/.*|
+                zra_vfms/public/js/lib/.*
+            )$
 
-  - repo: https://github.com/PyCQA/flake8
-    rev: 7.0.0
+  # Frappe Semgrep security rules (local hook — repo has no .pre-commit-hooks.yaml)
+  - repo: local
     hooks:
-        - id: flake8
-          additional_dependencies: [flake8-isort, flake8-bugbear]
-          files: "^zra_vfms/.*\\.py$"
-          args: ["--max-line-length=120", "--ignore=E203,W503"]
-          # Make flake8 report issues but not block the commit
-          stages: [manual]
-
-  - repo: https://github.com/myint/autoflake
-    rev: v2.2.1
-    hooks:
-      - id: autoflake
-        args: [
-          "--in-place",
-          "--remove-all-unused-imports",
-          "--remove-unused-variables",
-          "--ignore-init-module-imports",
-        ]
-        files: "^zra_vfms/.*\\.py$"
-
-  - repo: https://github.com/pre-commit/mirrors-autopep8
-    rev: v2.0.4
-    hooks:
-      - id: autopep8
-        args: [
-          "--in-place",
-          "--aggressive",
-          "--aggressive",
-          "--max-line-length=120",
-        ]
-        files: "^zra_vfms/.*\\.py$"
-        # Make autopep8 report issues but not block the commit
-        stages: [manual]
+      - id: frappe-semgrep-rules
+        name: "Frappe Semgrep Security Rules"
+        entry: bash -c 'if [ ! -d frappe-semgrep-rules/.git ]; then rm -rf frappe-semgrep-rules && GIT_TEMPLATE_DIR="" git clone --depth 1 https://github.com/frappe/semgrep-rules.git frappe-semgrep-rules; fi && semgrep scan --config ./frappe-semgrep-rules/rules --config r/python.lang.security --error --quiet "$@"' --
+        language: system
+        types: [python]
+        pass_filenames: true
 
 ci:
-  autoupdate_schedule: weekly
-  skip: []
-  submodules: false
+    autoupdate_schedule: weekly
+    skip: [frappe-semgrep-rules]
+    submodules: false
