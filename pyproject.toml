@@ -46,7 +46,9 @@ ignore = [
     "F403", # can't detect undefined names from * import
     "F405", # can't detect undefined names from * import
     "F722", # syntax error in forward type annotation
+    "F821", # undefined name (Frappe DF.Table forward references)
     "W191", # indentation contains tabs
+    "RUF002", # ambiguous unicode characters in docstrings
 ]
 typing-modules = ["frappe.types.DF"]
 

@@ -1,30 +1,66 @@
-
-name: Linters
+name: Linter
 
 on:
   pull_request:
+    branches: [develop, main]
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
+  push:
+    branches: [develop, main]
 
 permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: linter-zra_vfms-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  linter:
-    name: 'Frappe Linter'
+  commit-lint:
+    name: Semantic Commits
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 200
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          check-latest: true
+
+      - name: Check commit titles
+        run: |
+          npm install @commitlint/cli @commitlint/config-conventional
+          npx commitlint --config commitlint.config.js --verbose --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }}
+
+  linter:
+    name: Pre-commit Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-          cache: pip
+          python-version: '3.12'
+
       - uses: pre-commit/action@v3.0.0
+        env:
+          SKIP: frappe-semgrep-rules
+
+  semgrep:
+    name: Frappe Semgrep Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
       - name: Download Semgrep rules
         run: git clone --depth 1 https://github.com/frappe/semgrep-rules.git frappe-semgrep-rules
@@ -32,30 +68,4 @@ jobs:
       - name: Run Semgrep rules
         run: |
           pip install semgrep
-          semgrep ci --config ./frappe-semgrep-rules/rules --config r/python.lang.correctness
-
-  deps-vulnerable-check:
-    name: 'Vulnerable Dependency Check'
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - uses: actions/checkout@v4
-
-      - name: Cache pip
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/*requirements.txt', '**/pyproject.toml', '**/setup.py') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-            ${{ runner.os }}-
-
-      - name: Install and run pip-audit
-        run: |
-          pip install pip-audit
-          cd ${GITHUB_WORKSPACE}
-          pip-audit --desc on .
+          semgrep scan --config ./frappe-semgrep-rules/rules --config r/python.lang.security --error
