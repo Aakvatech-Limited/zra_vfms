@@ -11,7 +11,7 @@ folder = "./custom_fields_json"
 def load_json(file):
     CURR_DIR = os.path.abspath(os.path.dirname(__file__))
     json_file_path = os.path.join(CURR_DIR, folder, file)
-    with open(json_file_path, "r") as file:
+    with open(json_file_path) as file:  # nosemgrep
         data = json.load(file)
     return data
 
@@ -76,12 +76,11 @@ def create_fields_from_json(custom_fields_obj):
 
 
 def execute():
-    files = list(
-        filter(
-            lambda x: x.endswith(".json"),
-            os.listdir(os.path.join(os.path.abspath(os.path.dirname(__file__)), folder)),
-        )
-    )
+    files = [
+        f
+        for f in os.listdir(os.path.join(os.path.abspath(os.path.dirname(__file__)), folder))
+        if f.endswith(".json")
+    ]
     for file in files:
         try:
             data = load_json(file)

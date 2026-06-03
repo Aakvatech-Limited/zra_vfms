@@ -89,8 +89,7 @@ def send_request(setting, endpoint_name, payload, tax_type="VAT"):
             "success": False,
             "response": None,
             "error": (
-                f"Endpoint '{endpoint_name}' not found in ZRA Setting "
-                f"for company '{setting.company}'"
+                f"Endpoint '{endpoint_name}' not found in ZRA Setting " f"for company '{setting.company}'"
             ),
         }
 
@@ -125,7 +124,11 @@ def send_request(setting, endpoint_name, payload, tax_type="VAT"):
                     "error": None,
                 }
 
-            error_msg = response_data.get("error") or response_data.get("message") or response_data.get("statusMessage")
+            error_msg = (
+                response_data.get("error")
+                or response_data.get("message")
+                or response_data.get("statusMessage")
+            )
             if not error_msg:
                 return {
                     "success": True,
