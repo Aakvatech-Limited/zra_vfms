@@ -2,11 +2,23 @@ name: Linter
 
 on:
   pull_request:
-    branches: [develop, main]
+    branches:
+      - develop
+      - main
+      - version-15
+      - version-15-hotfix
+      - version-16
+      - version-16-hotfix
     types: [opened, synchronize, reopened]
   workflow_dispatch:
   push:
-    branches: [develop, main]
+    branches:
+      - develop
+      - main
+      - version-15
+      - version-15-hotfix
+      - version-16
+      - version-16-hotfix
 
 permissions:
   contents: read
