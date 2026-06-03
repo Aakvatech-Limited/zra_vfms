@@ -554,20 +554,37 @@ def _build_sales_items(sinv):
         itemId    — 0 for taxable items (VFMS applies registered tax rate);
                     for non-taxable (exempt) items, use the item ID from the
                     VFMS Non-Tax Items list (getNonTaxItems endpoint).
-        itemName  — item/service description (max 200 chars)
+        itemName  — item/service description (max 200 chars).
+                    For non-taxable items, use the VFMS non-tax item name.
         price     — tax-inclusive unit selling price
         quantity  — number of units
         discount  — total line discount amount (tax-inclusive)
-
-    Note: Non-taxable item ID mapping is not yet implemented;
-    all items default to itemId=0 (taxable).
     """
     items = []
+    # Cache Item non-tax lookups to avoid repeated DB hits
+    non_tax_cache = {}
+
     for item in sinv.items:
+        item_id = 0
+        item_name = (item.item_name or item.description or "")[:200]
+
+        if item.item_code and item.item_code not in non_tax_cache:
+            non_tax_cache[item.item_code] = frappe.db.get_value(
+                "Item",
+                item.item_code,
+                ["is_zra_non_taxable", "zra_non_tax_item_id", "zra_non_tax_item_name"],
+                as_dict=True,
+            )
+
+        non_tax_info = non_tax_cache.get(item.item_code)
+        if non_tax_info and non_tax_info.get("is_zra_non_taxable"):
+            item_id = int(non_tax_info.get("zra_non_tax_item_id") or 0)
+            item_name = (non_tax_info.get("zra_non_tax_item_name") or item_name)[:200]
+
         items.append(
             {
-                "itemId": 0,
-                "itemName": (item.item_name or item.description or "")[:200],
+                "itemId": item_id,
+                "itemName": item_name,
                 "price": _get_item_selling_price(item, sinv),
                 "quantity": float(item.qty),
                 "discount": 0.0,
