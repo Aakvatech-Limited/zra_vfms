@@ -5,10 +5,18 @@ on:
     branches:
       - develop
       - main
+      - version-15
+      - version-15-hotfix
+      - version-16
+      - version-16-hotfix
   pull_request:
     branches:
       - develop
       - main
+      - version-15
+      - version-15-hotfix
+      - version-16
+      - version-16-hotfix
 
 permissions:
   contents: read
