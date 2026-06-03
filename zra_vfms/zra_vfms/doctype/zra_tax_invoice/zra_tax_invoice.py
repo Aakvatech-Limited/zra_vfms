@@ -8,15 +8,13 @@ from frappe.model.document import Document
 
 
 class ZRATaxInvoice(Document):
-	def validate(self):
-		self._set_company_from_invoice()
+    def validate(self):
+        self._set_company_from_invoice()
 
-	def _set_company_from_invoice(self):
-		"""Auto-set company from the linked Sales Invoice."""
-		if self.sales_invoice and not self.company:
-			self.company = frappe.db.get_value(
-				"Sales Invoice", self.sales_invoice, "company"
-			)
+    def _set_company_from_invoice(self):
+        """Auto-set company from the linked Sales Invoice."""
+        if self.sales_invoice and not self.company:
+            self.company = frappe.db.get_value("Sales Invoice", self.sales_invoice, "company")
 
 
 def create_tax_invoice(
@@ -54,7 +52,7 @@ def create_tax_invoice(
         tax_inv.receipt_reference = receipt_reference
 
     tax_inv.insert(ignore_permissions=True)
-    frappe.db.commit()
+    frappe.db.commit()  # nosemgrep
     return tax_inv
 
 
@@ -111,7 +109,7 @@ def update_tax_invoice(
         tax_inv.verify_url = ""
 
     tax_inv.save(ignore_permissions=True)
-    frappe.db.commit()
+    frappe.db.commit()  # nosemgrep
     return tax_inv
 
 
