@@ -51,31 +51,29 @@ frappe.ui.form.on("Sales Invoice", {
       return;
     }
 
-    frappe.confirm(__("Send this invoice to ZRA Tax Authority?"), function () {
-      frappe.call({
-        method: "zra_vfms.api.sales_invoice.send_tax",
-        args: {
-          sales_invoice: frm.doc.name,
-        },
-        freeze: true,
-        freeze_message: __("Sending to ZRA..."),
-        callback: function (r) {
-          if (r.message) {
-            if (r.message.success) {
-              frappe.show_alert({
-                message: __(r.message.message),
-                indicator: "green",
-              });
-            } else {
-              frappe.show_alert({
-                message: __(r.message.message),
-                indicator: "red",
-              });
-            }
-            frm.reload_doc();
+    frappe.call({
+      method: "zra_vfms.api.sales_invoice.send_tax",
+      args: {
+        sales_invoice: frm.doc.name,
+      },
+      freeze: true,
+      freeze_message: __("Sending to ZRA..."),
+      callback: function (r) {
+        if (r.message) {
+          if (r.message.success) {
+            frappe.show_alert({
+              message: __(r.message.message),
+              indicator: "green",
+            });
+          } else {
+            frappe.show_alert({
+              message: __(r.message.message),
+              indicator: "red",
+            });
           }
-        },
-      });
+          frm.reload_doc();
+        }
+      },
     });
   },
 });
@@ -102,14 +100,21 @@ function zra_vfms_toggle_relief_fields(frm) {
 function zra_vfms_update_tax_status_indicator(frm) {
   if (!frm.doc.tax_status) return;
 
-  const status_colors = {
-    "Not Sent": "orange",
-    Pending: "yellow",
-    Success: "green",
-    Failed: "red",
-  };
-
-  const color = status_colors[frm.doc.tax_status] || "grey";
+  let color = "grey";
+  switch (frm.doc.tax_status) {
+    case "Not Sent":
+      color = "orange";
+      break;
+    case "Pending":
+      color = "yellow";
+      break;
+    case "Success":
+      color = "green";
+      break;
+    case "Failed":
+      color = "red";
+      break;
+  }
 
   frm.fields_dict.tax_status &&
     frm.fields_dict.tax_status.$wrapper
