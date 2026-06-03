@@ -1,0 +1,57 @@
+[
+	{
+		"dt": "Item",
+		"fieldname": "zra_non_taxable_section",
+		"fieldtype": "Section Break",
+		"label": "ZRA Non-Taxable",
+		"insert_after": "taxes",
+		"collapsible": 1,
+		"depends_on": ""
+	},
+	{
+		"dt": "Item",
+		"fieldname": "is_zra_non_taxable",
+		"fieldtype": "Check",
+		"label": "Is ZRA Non Taxable",
+		"insert_after": "zra_non_taxable_section",
+		"default": "0",
+		"description": "If checked, this item is exempt from ZRA tax. Select the corresponding non-tax item from VFMS below."
+	},
+	{
+		"dt": "Item",
+		"fieldname": "zra_non_tax_item",
+		"fieldtype": "Link",
+		"label": "ZRA Non Tax Item",
+		"insert_after": "is_zra_non_taxable",
+		"options": "ZRA Non Tax Item",
+		"depends_on": "eval:doc.is_zra_non_taxable",
+		"mandatory_depends_on": "eval:doc.is_zra_non_taxable",
+		"description": "Select the VFMS non-taxable item classification for this item."
+	},
+	{
+		"dt": "Item",
+		"fieldname": "zra_non_taxable_col_break",
+		"fieldtype": "Column Break",
+		"insert_after": "zra_non_tax_item"
+	},
+	{
+		"dt": "Item",
+		"fieldname": "zra_non_tax_item_id",
+		"fieldtype": "Data",
+		"label": "ZRA Non Tax Item ID",
+		"insert_after": "zra_non_taxable_col_break",
+		"fetch_from": "zra_non_tax_item.item_id",
+		"read_only": 1,
+		"depends_on": "eval:doc.is_zra_non_taxable"
+	},
+	{
+		"dt": "Item",
+		"fieldname": "zra_non_tax_item_name",
+		"fieldtype": "Data",
+		"label": "ZRA Non Tax Item Name",
+		"insert_after": "zra_non_tax_item_id",
+		"fetch_from": "zra_non_tax_item.item_name",
+		"read_only": 1,
+		"depends_on": "eval:doc.is_zra_non_taxable"
+	}
+]
