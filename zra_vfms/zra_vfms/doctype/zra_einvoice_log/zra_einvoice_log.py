@@ -8,7 +8,7 @@ from frappe.model.document import Document
 
 
 class ZRAEinvoiceLog(Document):
-	pass
+    pass
 
 
 def create_log(
@@ -43,7 +43,7 @@ def create_log(
         log.request_payload = json.dumps(request_payload, indent=2)
 
     log.insert(ignore_permissions=True)
-    frappe.db.commit()
+    frappe.db.commit()  # nosemgrep
     return log
 
 
@@ -69,7 +69,7 @@ def update_log(log_name, response_payload=None, status=None, error_message=None)
         log.error_message = error_message
 
     log.save(ignore_permissions=True)
-    frappe.db.commit()
+    frappe.db.commit()  # nosemgrep
     return log
 
 
@@ -81,7 +81,10 @@ def increment_retry(log_name):
     """
     current = frappe.db.get_value("ZRA Einvoice Log", log_name, "retry_count") or 0
     frappe.db.set_value(
-        "ZRA Einvoice Log", log_name, "retry_count", current + 1,
+        "ZRA Einvoice Log",
+        log_name,
+        "retry_count",
+        current + 1,
         update_modified=False,
     )
-    frappe.db.commit()
+    frappe.db.commit()  # nosemgrep

@@ -1,7 +1,7 @@
 app_name = "zra_vfms"
 app_title = "ZRA VFMS"
 app_publisher = "Aakvatech Limited"
-app_description = "\'ZANZIBAR REVENUE AUTHORITY: Virtual Fiscal Management System (VFMS)\'"
+app_description = "'ZANZIBAR REVENUE AUTHORITY: Virtual Fiscal Management System (VFMS)'"
 app_email = "info@aakvatech.com"
 app_license = "gpl-3.0"
 
@@ -254,4 +254,3 @@ scheduler_events = {
 # ------------
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
-

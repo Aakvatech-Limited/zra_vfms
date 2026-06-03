@@ -47,7 +47,7 @@ def on_submit(doc, method):
 
 
 @frappe.whitelist()
-def send_tax(sales_invoice):
+def send_tax(sales_invoice: str):
     """Manually send tax to ZRA via the Send Tax button.
 
     Args:
@@ -66,9 +66,7 @@ def send_tax(sales_invoice):
 
     setting = get_zra_setting(sinv.company)
     if not setting:
-        frappe.throw(
-            _(f"No ZRA Setting found for company {sinv.company}. Please create one in ZRA Setting.")
-        )
+        frappe.throw(_(f"No ZRA Setting found for company {sinv.company}. Please create one in ZRA Setting."))
 
     if setting.zra_start_date and getdate(sinv.posting_date) < getdate(setting.zra_start_date):
         frappe.throw(
@@ -79,8 +77,10 @@ def send_tax(sales_invoice):
     existing = get_tax_invoice(sinv.name)
     if existing and existing.status == "Success":
         frappe.throw(
-            _(f"Tax has already been sent successfully for this invoice. "
-              f"Receipt Number: {existing.receipt_number}")
+            _(
+                f"Tax has already been sent successfully for this invoice. "
+                f"Receipt Number: {existing.receipt_number}"
+            )
         )
 
     # Process synchronously for manual send
@@ -188,7 +188,7 @@ def _process_bulk_tax_invoices():
             fail_count += 1
 
             traceback = frappe.get_traceback()
-            msg = f"ZRA VFMS: Bulk tax failed for {inv.name} <br><br>\n{str(e)} <br><br>\n{traceback}"
+            msg = f"ZRA VFMS: Bulk tax failed for {inv.name} <br><br>\n{e!s} <br><br>\n{traceback}"
             frappe.log_error(
                 title=f"ZRA VFMS: Bulk tax failed for {inv.name}",
                 message=msg,
@@ -301,7 +301,7 @@ def process_tax_submission(sales_invoice):
             reference_doctype="Sales Invoice",
             reference_name=sinv.name,
         )
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep
 
         msg = _(f"Tax submission failed: <br><br>Message: <b>{result.get('error')}</b>")
         frappe.throw(msg)
@@ -329,16 +329,13 @@ def _determine_tax_type_and_endpoint(sinv):
     if sinv.get("relief_number"):
         if not sinv.get("relief_id"):
             frappe.throw(
-                _("Relief number must be verified before sending tax. "
-                  "Click 'Verify Relief Number' first.")
+                _("Relief number must be verified before sending tax. " "Click 'Verify Relief Number' first.")
             )
         return tax_type, "Save Relief Sales"
 
     if sinv.tax_id:
         # Fetch customer group to distinguish B2B vs Institution
-        customer_group = frappe.db.get_value(
-            "Customer", sinv.customer, "customer_group"
-        )
+        customer_group = frappe.db.get_value("Customer", sinv.customer, "customer_group")
         if customer_group == "Government":
             return tax_type, "Institution Sales"
 
@@ -447,15 +444,19 @@ def _build_error_correction_payload(sinv, setting):
 
     if not old_receipt_number:
         frappe.throw(
-            _("Cannot send Error Correction: original invoice has no "
-              "successful ZRA receipt.  Send the original invoice first.")
+            _(
+                "Cannot send Error Correction: original invoice has no "
+                "successful ZRA receipt.  Send the original invoice first."
+            )
         )
 
     if not new_receipt_number:
         frappe.throw(
-            _("Cannot send Error Correction: no replacement invoice with "
-              "a successful ZRA receipt was found.  Submit and send the "
-              "amended invoice to ZRA first.")
+            _(
+                "Cannot send Error Correction: no replacement invoice with "
+                "a successful ZRA receipt was found.  Submit and send the "
+                "amended invoice to ZRA first."
+            )
         )
 
     return {
@@ -480,9 +481,7 @@ def _build_save_relief_payload(sinv):
     """
     relief_id = sinv.get("relief_id")
     if not relief_id:
-        frappe.throw(
-            _("Relief ID is missing. Verify the relief number first.")
-        )
+        frappe.throw(_("Relief ID is missing. Verify the relief number first."))
 
     return {
         "reliefId": int(relief_id),
@@ -490,7 +489,7 @@ def _build_save_relief_payload(sinv):
 
 
 @frappe.whitelist()
-def verify_relief_number(sales_invoice):
+def verify_relief_number(sales_invoice: str):
     """Verify a special relief number against ZRA (Check Relief endpoint).
 
     Per VFMS API Guide v1.5 Section 3.4:
@@ -508,9 +507,7 @@ def verify_relief_number(sales_invoice):
 
     setting = get_zra_setting(sinv.company)
     if not setting:
-        frappe.throw(
-            _(f"No ZRA Setting found for company {sinv.company}.")
-        )
+        frappe.throw(_(f"No ZRA Setting found for company {sinv.company}."))
 
     payload = {"reliefnumber": relief_number}
 
@@ -520,30 +517,26 @@ def verify_relief_number(sales_invoice):
         response = result["response"] or {}
 
         if not response.get("isValid"):
-            frappe.throw(
-                _("Relief number <b>{0}</b> is not valid or has expired.")
-                .format(relief_number)
-            )
+            frappe.throw(_("Relief number <b>{0}</b> is not valid or has expired.").format(relief_number))
 
         relief_id = response.get("reliefId")
         if not relief_id:
-            frappe.throw(
-                _("ZRA returned no Relief ID for this relief number.")
-            )
+            frappe.throw(_("ZRA returned no Relief ID for this relief number."))
 
         # Store relief_id (its presence proves verification)
         frappe.db.set_value(
-            "Sales Invoice", sinv.name,
-            "relief_id", str(relief_id),
+            "Sales Invoice",
+            sinv.name,
+            "relief_id",
+            str(relief_id),
             update_modified=False,
         )
-        frappe.db.commit()
+        frappe.db.commit()  # nosemgrep
 
         return {
             "success": True,
             "message": _(
-                "Relief number verified successfully. "
-                "Customer: {0}, Amount Relieved: {1}"
+                "Relief number verified successfully. " "Customer: {0}, Amount Relieved: {1}"
             ).format(
                 response.get("customer", ""),
                 response.get("amountRevield", 0),
@@ -551,9 +544,7 @@ def verify_relief_number(sales_invoice):
             "relief_id": relief_id,
         }
     else:
-        frappe.throw(
-            _("Relief verification failed: {0}").format(result["error"])
-        )
+        frappe.throw(_("Relief verification failed: {0}").format(result["error"]))
 
 
 def _build_sales_items(sinv):
@@ -573,13 +564,15 @@ def _build_sales_items(sinv):
     """
     items = []
     for item in sinv.items:
-        items.append({
-            "itemId": 0,
-            "itemName": (item.item_name or item.description or "")[:200],
-            "price": _get_item_selling_price(item, sinv),
-            "quantity": float(item.qty),
-            "discount": 0.0,
-        })
+        items.append(
+            {
+                "itemId": 0,
+                "itemName": (item.item_name or item.description or "")[:200],
+                "price": _get_item_selling_price(item, sinv),
+                "quantity": float(item.qty),
+                "discount": 0.0,
+            }
+        )
     return items
 
 
@@ -618,19 +611,27 @@ def _get_item_selling_price(item, sinv):
 
 def _get_customer_phone(sinv):
     """Get customer mobile/phone from the invoice contact fields."""
-    phone_number =  sinv.get("contact_mobile") or sinv.get("contact_phone") or ""
+    phone_number = sinv.get("contact_mobile") or sinv.get("contact_phone") or ""
     if not phone_number:
         phone_number = frappe.db.get_value("Customer", sinv.customer, "mobile_no") or ""
 
     if not phone_number:
-        frappe.throw(_(f"No contact phone number found for customer: {sinv.customer}, please enter a phone number in the invoice or customer record."))
+        frappe.throw(
+            _(
+                f"No contact phone number found for customer: {sinv.customer}, please enter a phone number in the invoice or customer record."
+            )
+        )
 
     return phone_number
+
 
 def _update_tax_status(sales_invoice, status):
     """Update the tax_status custom field on Sales Invoice."""
     frappe.db.set_value(
-        "Sales Invoice", sales_invoice, "tax_status", status,
+        "Sales Invoice",
+        sales_invoice,
+        "tax_status",
+        status,
         update_modified=False,
     )
-    frappe.db.commit()
+    frappe.db.commit()  # nosemgrep

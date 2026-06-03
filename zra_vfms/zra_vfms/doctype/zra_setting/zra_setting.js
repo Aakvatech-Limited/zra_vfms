@@ -15,8 +15,7 @@ const DEFAULT_ENDPOINTS = [
     endpoint_path: "/vfms/api/btob/sales/",
     request_type: "BTOB_SALES",
     http_method: "POST",
-    description:
-      "For ZRA registered customers (B2B taxpayers) with ZRB number",
+    description: "For ZRA registered customers (B2B taxpayers) with ZRB number",
   },
   {
     endpoint_name: "Institution Sales",
