@@ -627,15 +627,35 @@ def _get_item_selling_price(item, sinv):
 
 
 def _get_customer_phone(sinv):
-    """Get customer mobile/phone from the invoice contact fields."""
+    """Get customer mobile/phone number with cascading fallback.
+
+    Lookup order:
+    1. Sales Invoice fields: contact_mobile, contact_phone
+    2. Customer record: mobile_no
+    3. Contact linked to Customer: mobile_no, phone
+    4. Throw if nothing found
+    """
     phone_number = sinv.get("contact_mobile") or sinv.get("contact_phone") or ""
+
     if not phone_number:
         phone_number = frappe.db.get_value("Customer", sinv.customer, "mobile_no") or ""
 
     if not phone_number:
+        contact_name = frappe.db.get_value(
+            "Dynamic Link",
+            {"link_doctype": "Customer", "link_name": sinv.customer, "parenttype": "Contact"},
+            "parent",
+        )
+        if contact_name:
+            contact = frappe.db.get_value("Contact", contact_name, ["mobile_no", "phone"], as_dict=True)
+            if contact:
+                phone_number = contact.get("mobile_no") or contact.get("phone") or ""
+
+    if not phone_number:
         frappe.throw(
             _(
-                f"No contact phone number found for customer: {sinv.customer}, please enter a phone number in the invoice or customer record."
+                f"No contact phone number found for customer: {sinv.customer}, "
+                f"please enter a phone number in the invoice, customer, or contact record."
             )
         )
 
