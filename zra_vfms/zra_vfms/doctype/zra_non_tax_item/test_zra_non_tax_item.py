@@ -18,26 +18,23 @@ class IntegrationTestZRANonTaxItem(IntegrationTestCase):
 	Use this class for testing interactions with the database.
 	"""
 
-	def setUp(self):
-		"""Set up test data before each test."""
-
 	def tearDown(self):
-		"""Clean up test data after each test."""
+		frappe.db.rollback()
 
 	def test_zra_non_tax_item_creation(self):
-		"""Test creating a new ZRA Non Tax Item."""
-		# Create test document
 		doc = frappe.get_doc(
 			{
 				"doctype": "ZRA Non Tax Item",
-				# Add required fields here
+				"item_id": 4242,
+				"item_name": "Sample Non Tax Item",
+				"unit_measure": "PCS",
+				"company": "_Test Company",
 			}
 		)
 		doc.insert()
 
-		# Assertions
 		self.assertEqual(doc.doctype, "ZRA Non Tax Item")
 		self.assertIsNotNone(doc.name)
+		self.assertEqual(doc.item_id, 4242)
 
-		# Clean up
 		doc.delete()
