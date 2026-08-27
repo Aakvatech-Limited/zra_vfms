@@ -301,7 +301,6 @@ def process_tax_submission(sales_invoice):
 			reference_doctype="Sales Invoice",
 			reference_name=sinv.name,
 		)
-		frappe.db.commit()  # nosemgrep
 
 		msg = _(f"Tax submission failed: <br><br>Message: <b>{result.get('error')}</b>")
 		frappe.throw(msg)
@@ -669,4 +668,3 @@ def _update_tax_status(sales_invoice, status):
 		status,
 		update_modified=False,
 	)
-	frappe.db.commit()  # nosemgrep

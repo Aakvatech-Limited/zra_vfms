@@ -43,7 +43,6 @@ def create_log(
 		log.request_payload = json.dumps(request_payload, indent=2)
 
 	log.insert(ignore_permissions=True)
-	frappe.db.commit()  # nosemgrep
 	return log
 
 
@@ -69,7 +68,6 @@ def update_log(log_name, response_payload=None, status=None, error_message=None)
 		log.error_message = error_message
 
 	log.save(ignore_permissions=True)
-	frappe.db.commit()  # nosemgrep
 	return log
 
 

@@ -52,7 +52,6 @@ def create_tax_invoice(
 		tax_inv.receipt_reference = receipt_reference
 
 	tax_inv.insert(ignore_permissions=True)
-	frappe.db.commit()  # nosemgrep
 	return tax_inv
 
 
@@ -109,7 +108,6 @@ def update_tax_invoice(
 		tax_inv.verify_url = ""
 
 	tax_inv.save(ignore_permissions=True)
-	frappe.db.commit()  # nosemgrep
 	return tax_inv
 
 
