@@ -3,6 +3,7 @@
 
 import frappe
 from frappe.tests import IntegrationTestCase, UnitTestCase
+from frappe.utils import today
 
 
 class UnitTestZRASetting(UnitTestCase):
@@ -18,26 +19,63 @@ class IntegrationTestZRASetting(IntegrationTestCase):
 	Use this class for testing interactions with the database.
 	"""
 
-	def setUp(self):
-		"""Set up test data before each test."""
-
 	def tearDown(self):
-		"""Clean up test data after each test."""
+		frappe.db.rollback()
 
 	def test_zra_setting_creation(self):
-		"""Test creating a new ZRA Setting."""
-		# Create test document
 		doc = frappe.get_doc(
 			{
 				"doctype": "ZRA Setting",
-				# Add required fields here
+				"company": "_Test Company",
+				"base_url": "https://vfms.zra.example",
+				"zra_start_date": today(),
+				"credentials": [
+					{
+						"tax_type": "VAT",
+						"integration_id": "int-1",
+						"token_id": "secret-token",
+						"enabled": 1,
+					}
+				],
+				"endpoints": [
+					{
+						"endpoint_name": "Normal Sales",
+						"endpoint_path": "/vfms/api/normalSales/",
+						"request_type": "Normal Sales",
+						"http_method": "POST",
+					}
+				],
 			}
 		)
 		doc.insert()
 
-		# Assertions
 		self.assertEqual(doc.doctype, "ZRA Setting")
-		self.assertIsNotNone(doc.name)
+		self.assertEqual(doc.name, "_Test Company")
+		self.assertEqual(len(doc.credentials), 1)
+		self.assertEqual(len(doc.endpoints), 1)
 
-		# Clean up
+		doc.delete()
+
+	def test_zra_setting_name_is_company(self):
+		"""autoname is `field:company`, so the record name must equal the company."""
+		doc = frappe.get_doc(
+			{
+				"doctype": "ZRA Setting",
+				"company": "_Test Company",
+				"base_url": "https://vfms.zra.example",
+				"zra_start_date": today(),
+				"credentials": [
+					{"tax_type": "VAT", "integration_id": "int-1", "token_id": "secret", "enabled": 1}
+				],
+				"endpoints": [
+					{
+						"endpoint_name": "Normal Sales",
+						"endpoint_path": "/vfms/api/normalSales/",
+						"request_type": "Normal Sales",
+					}
+				],
+			}
+		).insert()
+
+		self.assertEqual(doc.name, doc.company)
 		doc.delete()
