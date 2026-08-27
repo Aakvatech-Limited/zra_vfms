@@ -3,6 +3,7 @@
 
 import frappe
 from frappe.tests import IntegrationTestCase, UnitTestCase
+from frappe.utils import today
 
 
 class UnitTestZRACredential(UnitTestCase):
@@ -15,29 +16,38 @@ class UnitTestZRACredential(UnitTestCase):
 class IntegrationTestZRACredential(IntegrationTestCase):
 	"""
 	Integration tests for ZRA Credential.
-	Use this class for testing interactions with the database.
+
+	ZRA Credential is a child table (istable=1) of ZRA Setting, so rows are
+	only ever created through the parent document.
 	"""
 
-	def setUp(self):
-		"""Set up test data before each test."""
-
 	def tearDown(self):
-		"""Clean up test data after each test."""
+		frappe.db.rollback()
 
-	def test_zra_credential_creation(self):
-		"""Test creating a new ZRA Credential."""
-		# Create test document
-		doc = frappe.get_doc(
+	def test_zra_credential_creation_via_parent(self):
+		setting = frappe.get_doc(
 			{
-				"doctype": "ZRA Credential",
-				# Add required fields here
+				"doctype": "ZRA Setting",
+				"company": "_Test Company",
+				"base_url": "https://vfms.zra.example",
+				"zra_start_date": today(),
+				"credentials": [
+					{"tax_type": "VAT", "integration_id": "int-1", "token_id": "s3cr3t", "enabled": 1}
+				],
+				"endpoints": [
+					{
+						"endpoint_name": "Normal Sales",
+						"endpoint_path": "/vfms/api/normalSales/",
+						"request_type": "Normal Sales",
+					}
+				],
 			}
-		)
-		doc.insert()
+		).insert()
 
-		# Assertions
-		self.assertEqual(doc.doctype, "ZRA Credential")
-		self.assertIsNotNone(doc.name)
+		self.assertEqual(len(setting.credentials), 1)
+		row = setting.credentials[0]
+		self.assertEqual(row.doctype, "ZRA Credential")
+		self.assertEqual(row.tax_type, "VAT")
+		self.assertEqual(row.get_password("token_id"), "s3cr3t")
 
-		# Clean up
-		doc.delete()
+		setting.delete()
