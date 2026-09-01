@@ -4,4 +4,7 @@
 *.swp
 tags
 node_modules
-__pycache__frappe-semgrep-rules/
+__pycache__
+
+# Cloned by the frappe-semgrep-rules pre-commit hook
+frappe-semgrep-rules/

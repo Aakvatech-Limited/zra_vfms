@@ -47,12 +47,12 @@ app_license = "gpl-3.0"
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 
 doctype_js = {
-    "Sales Invoice": "public/js/sales_invoice.js",
+	"Sales Invoice": "public/js/sales_invoice.js",
 }
 
 doctype_list_js = {
-    "Custom Field": "patches/custom_fields/custom_field.js",
-    "Property Setter": "patches/property_setter/property_setter.js",
+	"Custom Field": "patches/custom_fields/custom_field.js",
+	"Property Setter": "patches/property_setter/property_setter.js",
 }
 
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -98,8 +98,8 @@ doctype_list_js = {
 # After Migrate
 # -------------
 after_migrate = [
-    "zra_vfms.patches.custom_fields.create_custom_fields.execute",
-    "zra_vfms.patches.property_setter.create_property_setters.execute",
+	"zra_vfms.patches.custom_fields.create_custom_fields.execute",
+	"zra_vfms.patches.property_setter.create_property_setters.execute",
 ]
 
 # Uninstallation
@@ -155,23 +155,23 @@ after_migrate = [
 # Hook on document methods and events
 
 doc_events = {
-    "Sales Invoice": {
-        "on_submit": "zra_vfms.api.sales_invoice.on_submit",
-    },
+	"Sales Invoice": {
+		"on_submit": "zra_vfms.api.sales_invoice.on_submit",
+	},
 }
 
 # Scheduled Tasks
 # ---------------
 
 scheduler_events = {
-    "cron": {
-        "*/15 * * * *": [
-            "zra_vfms.api.sales_invoice.send_all_tax_invoices",
-        ],
-    },
-    "weekly": [
-        "zra_vfms.api.non_tax_items.fetch_non_tax_items",
-    ],
+	"cron": {
+		"*/15 * * * *": [
+			"zra_vfms.api.sales_invoice.send_all_tax_invoices",
+		],
+	},
+	"weekly": [
+		"zra_vfms.api.non_tax_items.fetch_non_tax_items",
+	],
 }
 
 # Testing
