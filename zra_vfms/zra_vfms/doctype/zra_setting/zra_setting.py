@@ -7,6 +7,9 @@ from frappe.model.document import Document
 
 from zra_vfms.api.non_tax_items import fetch_and_sync_items
 
+TEST_BASE_URL = "http://102.223.7.131:6060"
+LIVE_BASE_URL = "https://gateway.zanrevenue.org"
+
 # All 10 VFMS API endpoints per API Guide v1.5 (April 2024)
 DEFAULT_ENDPOINTS = [
 	{
@@ -98,6 +101,7 @@ class ZRASetting(Document):
 		contact_phone: DF.Data | None
 		credentials: DF.Table[ZRACredential]
 		endpoints: DF.Table[ZRAEndpoint]
+		sandbox: DF.Check
 		tin_number: DF.Data | None
 		unit_id: DF.Data | None
 		vrn_number: DF.Data | None
@@ -107,6 +111,9 @@ class ZRASetting(Document):
 	def validate(self):
 		self._validate_unique_tax_types()
 		self._validate_unique_endpoint_names()
+
+	def before_save(self):
+		self.base_url = TEST_BASE_URL if self.sandbox else LIVE_BASE_URL
 
 	def _populate_default_endpoints(self):
 		"""Add all default VFMS endpoints to the endpoints child table."""
