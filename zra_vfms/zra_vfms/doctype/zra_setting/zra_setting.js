@@ -106,6 +106,23 @@ frappe.ui.form.on("ZRA Setting", {
         },
         __("Actions")
       );
+
+      frm.add_custom_button(
+        __("Fetch Non-Tax Items"),
+        function () {
+          frm
+            .call({
+              method: "fetch_non_tax_items",
+              doc: frm.doc,
+              freeze: true,
+              freeze_message: __("Fetching non-taxable items from ZRA..."),
+            })
+            .then(() => {
+              frm.reload_doc();
+            });
+        },
+        __("Actions")
+      );
     }
   },
 });
