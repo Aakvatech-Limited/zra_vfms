@@ -1,0 +1,11 @@
+[
+	{
+		"name": "Customer-tax_id-label",
+		"doctype_or_field": "DocField",
+		"doc_type": "Customer",
+		"field_name": "tax_id",
+		"property": "label",
+		"property_type": "Data",
+		"value": "ZRA Number"
+	}
+]
