@@ -9,6 +9,7 @@
  "engine": "InnoDB",
  "field_order": [
   "company",
+  "sandbox",
   "base_url",
   "column_break_bhfd",
   "zra_start_date",
@@ -29,13 +30,11 @@
    "unique": 1
   },
   {
-   "default": "http://102.223.7.131:6060",
    "description": "VFMS server base URL. Use test URL for sandbox, production URL for live.",
    "fieldname": "base_url",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Base URL",
-   "reqd": 1,
    "search_index": 1
   },
   {
@@ -80,13 +79,19 @@
    "fieldtype": "Check",
    "label": "Auto Send Tax on Submit",
    "search_index": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "sandbox",
+   "fieldtype": "Check",
+   "label": "Sandbox"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-05 21:28:37.208231",
- "modified_by": "Administrator",
+ "modified": "2026-09-01 12:20:14.938823",
+ "modified_by": "admin@test.com",
  "module": "ZRA VFMS",
  "name": "ZRA Setting",
  "naming_rule": "By fieldname",
