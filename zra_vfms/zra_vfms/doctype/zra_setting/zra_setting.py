@@ -5,6 +5,8 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
+from zra_vfms.api.non_tax_items import fetch_and_sync_items
+
 # All 10 VFMS API endpoints per API Guide v1.5 (April 2024)
 DEFAULT_ENDPOINTS = [
 	{
@@ -139,3 +141,14 @@ class ZRASetting(Document):
 		self._populate_default_endpoints()
 		self.save()
 		frappe.msgprint(_("Endpoints have been reset to defaults."), alert=True)
+
+	@frappe.whitelist()
+	def fetch_non_tax_items(self):
+		"""Fetch non-taxable items from ZRA now. Can be called from a button on the form."""
+		result = fetch_and_sync_items(self)
+		frappe.msgprint(
+			_("Fetched non-taxable items: {0} new, {1} updated.").format(
+				result["new_count"], result["updated_count"]
+			),
+			alert=True,
+		)
