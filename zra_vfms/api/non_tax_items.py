@@ -38,7 +38,7 @@ def fetch_non_tax_items():
 		setting = frappe.get_cached_doc("ZRA Setting", row.name)
 
 		try:
-			_fetch_and_sync_items(setting)
+			fetch_and_sync_items(setting)
 			processed_urls.add(row.base_url)
 		except Exception as e:
 			msg = f"{row.company}: {e!s} <br><br>Traceback:</b><br>{frappe.get_traceback()}"
@@ -50,7 +50,7 @@ def fetch_non_tax_items():
 			)
 
 
-def _fetch_and_sync_items(setting):
+def fetch_and_sync_items(setting):
 	"""Fetch non-tax items from VFMS and upsert into ZRA Non Tax Item.
 
 	Args:
@@ -66,11 +66,11 @@ def _fetch_and_sync_items(setting):
 			reference_doctype="ZRA Setting",
 			reference_name=setting.name,
 		)
-		return
+		frappe.throw(result["error"])
 
 	items = result["response"]
 	if not items or not isinstance(items, list):
-		return
+		return {"new_count": 0, "updated_count": 0}
 
 	synced_at = now_datetime()
 	new_count = 0
@@ -121,3 +121,5 @@ def _fetch_and_sync_items(setting):
 			reference_doctype="ZRA Setting",
 			reference_name=setting.name,
 		)
+
+	return {"new_count": new_count, "updated_count": updated_count}
