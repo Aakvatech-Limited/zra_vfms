@@ -1,0 +1,23 @@
+{
+ "creation": "2026-10-01 18:35:00.000000",
+ "docstatus": 0,
+ "doctype": "Number Card",
+ "document_type": "ZRA Tax Invoice",
+ "dynamic_filters_json": "[[\"ZRA Tax Invoice\",\"company\",\"=\",\"frappe.defaults.get_user_default(\\\"Company\\\")\"]]",
+ "filters_json": "[[\"ZRA Tax Invoice\",\"status\",\"=\",\"Success\"],[\"ZRA Tax Invoice\",\"is_cancellation\",\"=\",0],[\"ZRA Tax Invoice\",\"is_correction\",\"=\",0]]",
+ "function": "Sum",
+ "idx": 0,
+ "is_public": 1,
+ "is_standard": 1,
+ "label": "Gross ZRA Tax Amount",
+ "modified": "2026-10-01 18:35:00.000000",
+ "modified_by": "Administrator",
+ "module": "ZRA VFMS",
+ "name": "Gross ZRA Tax Amount",
+ "owner": "Administrator",
+ "show_full_number": 0,
+ "show_percentage_stats": 1,
+ "stats_time_interval": "Daily",
+ "type": "Document Type",
+ "aggregate_function_based_on": "tax_amount"
+}
