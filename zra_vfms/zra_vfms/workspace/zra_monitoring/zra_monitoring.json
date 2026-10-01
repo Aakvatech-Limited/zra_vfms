@@ -1,0 +1,234 @@
+{
+ "charts": [
+  {
+   "chart_name": "ZRA Receipt Amount Trend",
+   "label": "ZRA Receipt Amount Trend"
+  },
+  {
+   "chart_name": "ZRA Tax Amount Trend",
+   "label": "ZRA Tax Amount Trend"
+  },
+  {
+   "chart_name": "ZRA Receipt Status",
+   "label": "ZRA Receipt Status"
+  },
+  {
+   "chart_name": "ZRA Tax Type Mix",
+   "label": "ZRA Tax Type Mix"
+  }
+ ],
+ "content": "[{\"id\":\"zra_head_kpi\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>ZRA Fiscal Overview</b></span>\",\"col\":12}},{\"id\":\"zra_nc_success\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Successful ZRA Receipts\",\"col\":3}},{\"id\":\"zra_nc_failed\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Failed ZRA Receipts\",\"col\":3}},{\"id\":\"zra_nc_pending\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Pending ZRA Receipts\",\"col\":3}},{\"id\":\"zra_nc_cancel\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"ZRA Cancellations\",\"col\":3}},{\"id\":\"zra_nc_receipt_amt\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Gross ZRA Receipt Amount\",\"col\":4}},{\"id\":\"zra_nc_tax_amt\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"Gross ZRA Tax Amount\",\"col\":4}},{\"id\":\"zra_nc_correction\",\"type\":\"number_card\",\"data\":{\"number_card_name\":\"ZRA Corrections\",\"col\":4}},{\"id\":\"zra_spacer_1\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"zra_chart_receipt\",\"type\":\"chart\",\"data\":{\"chart_name\":\"ZRA Receipt Amount Trend\",\"col\":6}},{\"id\":\"zra_chart_tax\",\"type\":\"chart\",\"data\":{\"chart_name\":\"ZRA Tax Amount Trend\",\"col\":6}},{\"id\":\"zra_chart_status\",\"type\":\"chart\",\"data\":{\"chart_name\":\"ZRA Receipt Status\",\"col\":6}},{\"id\":\"zra_chart_type\",\"type\":\"chart\",\"data\":{\"chart_name\":\"ZRA Tax Type Mix\",\"col\":6}},{\"id\":\"zra_spacer_2\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"zra_head_shortcuts\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Quick Access</b></span>\",\"col\":12}},{\"id\":\"zra_sc_tax_invoice\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"ZRA Tax Invoice\",\"col\":3}},{\"id\":\"zra_sc_analysis\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"ZRA Tax Invoice Analysis\",\"col\":3}},{\"id\":\"zra_sc_sales_invoice\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Sales Invoice\",\"col\":3}},{\"id\":\"zra_sc_setting\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"ZRA Setting\",\"col\":3}},{\"id\":\"zra_spacer_3\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"zra_head_links\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Transactions, Setup &amp; Monitoring</b></span>\",\"col\":12}},{\"id\":\"zra_card_transactions\",\"type\":\"card\",\"data\":{\"card_name\":\"Transactions\",\"col\":4}},{\"id\":\"zra_card_setup\",\"type\":\"card\",\"data\":{\"card_name\":\"Setup\",\"col\":4}},{\"id\":\"zra_card_monitoring\",\"type\":\"card\",\"data\":{\"card_name\":\"Monitoring\",\"col\":4}}]",
+ "creation": "2026-10-01 18:35:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "accounting",
+ "idx": 0,
+ "indicator_color": "",
+ "is_hidden": 0,
+ "label": "ZRA Monitoring",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Transactions",
+   "link_count": 4,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "ZRA Tax Invoice",
+   "link_count": 0,
+   "link_to": "ZRA Tax Invoice",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Sales Invoice",
+   "link_count": 0,
+   "link_to": "Sales Invoice",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Customer",
+   "link_count": 0,
+   "link_to": "Customer",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Company",
+   "link_count": 0,
+   "link_to": "Company",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Setup",
+   "link_count": 4,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "ZRA Setting",
+   "link_count": 0,
+   "link_to": "ZRA Setting",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "ZRA Credential",
+   "link_count": 0,
+   "link_to": "ZRA Credential",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "ZRA Endpoint",
+   "link_count": 0,
+   "link_to": "ZRA Endpoint",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "ZRA Non Tax Item",
+   "link_count": 0,
+   "link_to": "ZRA Non Tax Item",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Monitoring",
+   "link_count": 2,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 1,
+   "label": "ZRA Tax Invoice Analysis",
+   "link_count": 0,
+   "link_to": "ZRA Tax Invoice Analysis",
+   "link_type": "Report",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "ZRA EInvoice Log",
+   "link_count": 0,
+   "link_to": "ZRA EInvoice Log",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-10-01 18:35:00.000000",
+ "modified_by": "Administrator",
+ "module": "ZRA VFMS",
+ "name": "ZRA Monitoring",
+ "number_cards": [
+  {
+   "label": "Successful ZRA Receipts",
+   "number_card_name": "Successful ZRA Receipts"
+  },
+  {
+   "label": "Failed ZRA Receipts",
+   "number_card_name": "Failed ZRA Receipts"
+  },
+  {
+   "label": "Pending ZRA Receipts",
+   "number_card_name": "Pending ZRA Receipts"
+  },
+  {
+   "label": "Gross ZRA Receipt Amount",
+   "number_card_name": "Gross ZRA Receipt Amount"
+  },
+  {
+   "label": "Gross ZRA Tax Amount",
+   "number_card_name": "Gross ZRA Tax Amount"
+  },
+  {
+   "label": "ZRA Cancellations",
+   "number_card_name": "ZRA Cancellations"
+  },
+  {
+   "label": "ZRA Corrections",
+   "number_card_name": "ZRA Corrections"
+  }
+ ],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "restrict_to_domain": "",
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ],
+ "sequence_id": 1,
+ "shortcuts": [
+  {
+   "color": "Blue",
+   "doc_view": "List",
+   "label": "ZRA Tax Invoice",
+   "link_to": "ZRA Tax Invoice",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "label": "ZRA Tax Invoice Analysis",
+   "link_to": "ZRA Tax Invoice Analysis",
+   "type": "Report"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Sales Invoice",
+   "link_to": "Sales Invoice",
+   "stats_filter": "[]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "Form",
+   "label": "ZRA Setting",
+   "link_to": "ZRA Setting",
+   "type": "DocType"
+  }
+ ],
+ "title": "ZRA Monitoring"
+}
